@@ -1,0 +1,552 @@
+
+     <!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Park & Fly</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #F7F7F5;
+  --white: #FFFFFF;
+  --black: #0D0D0D;
+  --ink: #1A1A1A;
+  --ink-2: #3D3D3D;
+  --ink-3: #7A7A7A;
+  --ink-4: #B0B0B0;
+  --line: #E8E8E4;
+  --line-2: #D4D4CE;
+  --accent: #0066FF;
+  --accent-hover: #0052CC;
+  --accent-pale: #EBF2FF;
+  --accent-mid: #CCE0FF;
+  --green: #1A7A4A;
+  --green-bg: #EDFAF3;
+  --red: #C0392B;
+  --red-bg: #FEF0EE;
+  --orange: #B35A00;
+  --orange-bg: #FEF6EE;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Instrument Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(247,247,245,0.85); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+  height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 2.5rem;
+}
+.nav-logo { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; }
+.nav-logo .dot { color: var(--accent); }
+.nav-links { display: flex; gap: 2rem; align-items: center; }
+.nav-links a { font-size: 13px; font-weight: 500; color: var(--ink-3); text-decoration: none; cursor: pointer; transition: color 0.15s; }
+.nav-links a:hover { color: var(--ink); }
+.nav-cta { color: var(--white) !important; background: var(--ink); padding: 7px 16px; border-radius: 20px; transition: background 0.15s !important; font-weight: 600 !important; }
+.nav-cta:hover { background: var(--accent) !important; color: var(--white) !important; }
+
+.hero { padding: 100px 2.5rem 80px; max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent);
+  background: var(--accent-pale); border: 1px solid var(--accent-mid);
+  padding: 5px 12px; border-radius: 20px; margin-bottom: 28px;
+}
+.hero-tag::before { content:'●'; font-size:8px; animation: blink 1.4s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(40px, 5vw, 58px); font-weight: 800; color: var(--ink); line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 20px; }
+.hero h1 .blue { color: var(--accent); }
+.hero p { font-size: 16px; color: var(--ink-3); line-height: 1.65; max-width: 420px; margin-bottom: 36px; }
+.hero-actions { display: flex; gap: 12px; align-items: center; }
+.btn-primary { height: 46px; padding: 0 24px; background: var(--ink); color: var(--white); border: none; border-radius: 23px; font-size: 14px; font-weight: 600; font-family: 'Instrument Sans', sans-serif; cursor: pointer; transition: background 0.15s, transform 0.1s; }
+.btn-primary:hover { background: var(--accent); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-ghost { height: 46px; padding: 0 20px; background: transparent; color: var(--ink-2); border: 1.5px solid var(--line-2); border-radius: 23px; font-size: 14px; font-weight: 500; font-family: 'Instrument Sans', sans-serif; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+.btn-ghost:hover { border-color: var(--ink-3); color: var(--ink); }
+
+.hero-right { background: var(--white); border-radius: var(--radius); border: 1px solid var(--line); padding: 28px; box-shadow: var(--shadow); }
+.hero-right-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 20px; }
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.field label { font-size: 11px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+.field select, .field input { height: 42px; border: 1.5px solid var(--line); border-radius: var(--radius-sm); background: var(--bg); color: var(--ink); padding: 0 12px; font-size: 14px; font-family: 'Instrument Sans', sans-serif; outline: none; transition: border-color 0.15s; }
+.field select:focus, .field input:focus { border-color: var(--accent); background: var(--white); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-search-hero { width: 100%; height: 46px; background: var(--accent); color: var(--white); border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; font-family: 'Instrument Sans', sans-serif; cursor: pointer; margin-top: 4px; transition: background 0.15s; }
+.btn-search-hero:hover { background: var(--accent-hover); }
+
+.stats-bar { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--white); padding: 20px 2.5rem; display: flex; justify-content: center; gap: 60px; flex-wrap: wrap; }
+.stat-item { text-align: center; }
+.stat-num { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--ink); letter-spacing: -1px; }
+.stat-desc { font-size: 11px; color: var(--ink-4); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.airports-section { max-width: 1100px; margin: 64px auto; padding: 0 2.5rem; }
+.sec-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+.sec-header h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--ink); letter-spacing: -0.8px; }
+.sec-header p { font-size: 13px; color: var(--ink-4); font-family: 'JetBrains Mono', monospace; }
+.airports-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+
+.airport-card { background: var(--white); border-radius: var(--radius); border: 1.5px solid var(--line); overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; box-shadow: var(--shadow); }
+.airport-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.ac-top { padding: 22px 22px 16px; display: flex; align-items: flex-start; justify-content: space-between; }
+.ac-iata { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: var(--ink); letter-spacing: -1px; line-height: 1; }
+.ac-status { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; font-family: 'JetBrains Mono', monospace; }
+.s-open { background: var(--green-bg); color: var(--green); }
+.s-full { background: var(--red-bg); color: var(--red); }
+.ac-body { padding: 0 22px 20px; }
+.ac-name { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.ac-city { font-size: 12px; color: var(--ink-4); margin-bottom: 18px; }
+.ac-numbers { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-bottom: 14px; }
+.ac-num-item { background: var(--bg); border-radius: var(--radius-xs); padding: 10px 8px; text-align: center; }
+.ac-num-val { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+.v-green { color: var(--green); } .v-red { color: var(--red); } .v-ink { color: var(--ink-2); }
+.ac-num-label { font-size: 10px; color: var(--ink-4); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
+.ac-progress { height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; margin-bottom: 14px; }
+.ac-progress-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+.ac-btn { width: 100%; height: 40px; background: var(--bg); color: var(--ink); border: 1.5px solid var(--line); border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; font-family: 'Instrument Sans', sans-serif; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; }
+.ac-btn:hover { background: var(--accent); border-color: var(--accent); color: var(--white); }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(13,13,13,0.6); backdrop-filter: blur(8px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal { background: var(--white); border-radius: 20px; width: 100%; max-width: 720px; max-height: 88vh; overflow-y: auto; box-shadow: var(--shadow-lg); border: 1px solid var(--line); transform: translateY(16px) scale(0.99); transition: transform 0.2s; }
+.modal-overlay.open .modal { transform: translateY(0) scale(1); }
+.modal-head { padding: 28px 28px 24px; border-bottom: 1px solid var(--line); display: flex; align-items: flex-start; justify-content: space-between; position: sticky; top: 0; background: var(--white); z-index: 5; border-radius: 20px 20px 0 0; }
+.modal-head-info h2 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; margin-bottom: 3px; }
+.modal-head-info p { font-size: 13px; color: var(--ink-3); }
+.modal-close { width: 34px; height: 34px; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); color: var(--ink-3); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.modal-close:hover { background: var(--red-bg); color: var(--red); }
+.modal-body { padding: 24px 28px 28px; }
+
+.legend-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 22px; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--ink-3); font-weight: 500; }
+.leg-sq { width: 12px; height: 12px; border-radius: 3px; border: 1.5px solid; }
+.sector-block { margin-bottom: 22px; }
+.sector-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.sector-head-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--ink); }
+.sector-head-count { font-size: 11px; color: var(--ink-4); font-family: 'JetBrains Mono', monospace; }
+.spots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 5px; }
+.spot-btn { height: 34px; border-radius: var(--radius-xs); border: 1.5px solid; font-size: 11px; font-weight: 500; font-family: 'JetBrains Mono', monospace; cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; }
+.spot-btn:hover:not(.occupied):not(.reserved) { transform: scale(1.1); }
+.spot-btn.free { background: var(--green-bg); color: var(--green); border-color: #9ADCBA; }
+.spot-btn.occupied { background: var(--red-bg); color: var(--red); border-color: #EFAAAA; cursor: not-allowed; opacity: 0.6; }
+.spot-btn.reserved { background: var(--orange-bg); color: var(--orange); border-color: #F5C897; cursor: not-allowed; opacity: 0.6; }
+.spot-btn.selected { background: var(--accent-pale); color: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,102,255,0.12); }
+
+.divider { height: 1px; background: var(--line); margin: 24px 0; }
+.res-heading { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 16px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-field { display: flex; flex-direction: column; gap: 5px; }
+.form-field label { font-size: 11px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+.form-field input, .form-field select { height: 42px; border: 1.5px solid var(--line); border-radius: var(--radius-sm); background: var(--bg); color: var(--ink); padding: 0 12px; font-size: 14px; font-family: 'Instrument Sans', sans-serif; outline: none; transition: border-color 0.15s; }
+.form-field input:focus, .form-field select:focus { border-color: var(--accent); background: var(--white); }
+.selected-display { height: 42px; background: var(--accent-pale); border: 1.5px solid var(--accent-mid); border-radius: var(--radius-sm); padding: 0 12px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+.price-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg); border: 1.5px solid var(--line); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; }
+.price-label { font-size: 13px; color: var(--ink-3); font-weight: 500; }
+.price-val { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; }
+.price-val .small { font-size: 14px; font-weight: 500; color: var(--ink-3); }
+.btn-confirm { width: 100%; height: 48px; background: var(--accent); color: var(--white); border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; font-family: 'Instrument Sans', sans-serif; cursor: pointer; margin-top: 14px; transition: background 0.15s, transform 0.1s; }
+.btn-confirm:hover { background: var(--accent-hover); }
+.btn-confirm:active { transform: scale(0.99); }
+.btn-confirm:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.success-overlay { position: fixed; inset: 0; background: rgba(13,13,13,0.7); backdrop-filter: blur(8px); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.success-overlay.open { opacity: 1; pointer-events: all; }
+.success-card { background: var(--white); border-radius: 20px; padding: 40px 36px; max-width: 420px; width: 100%; text-align: center; border: 1px solid var(--line); box-shadow: var(--shadow-lg); }
+.success-icon { width: 60px; height: 60px; background: var(--green-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 20px; border: 1.5px solid #9ADCBA; }
+.success-card h2 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--ink); margin-bottom: 8px; letter-spacing: -0.5px; }
+.success-card p { font-size: 14px; color: var(--ink-3); margin-bottom: 24px; line-height: 1.5; }
+.suc-table { background: var(--bg); border-radius: var(--radius-sm); padding: 16px; text-align: left; margin-bottom: 22px; border: 1px solid var(--line); }
+.suc-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+.suc-row:last-child { border-bottom: none; }
+.suc-row .k { color: var(--ink-4); font-weight: 500; }
+.suc-row .v { font-weight: 600; color: var(--ink); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.btn-done { width: 100%; height: 44px; background: var(--ink); color: var(--white); border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; font-family: 'Instrument Sans', sans-serif; cursor: pointer; transition: background 0.15s; }
+.btn-done:hover { background: var(--accent); }
+
+.api-section { max-width: 1100px; margin: 0 auto 80px; padding: 0 2.5rem; }
+.api-panel { background: var(--ink); border-radius: var(--radius); overflow: hidden; border: 1px solid #2A2A2A; }
+.api-panel-head { padding: 18px 24px; border-bottom: 1px solid #2A2A2A; display: flex; align-items: center; gap: 10px; }
+.api-panel-head h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--white); }
+.api-live-dot { width: 8px; height: 8px; border-radius: 50%; background: #22C55E; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
+.api-log { padding: 16px; display: flex; flex-direction: column; gap: 4px; max-height: 220px; overflow-y: auto; }
+.api-log-item { display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; padding: 7px 10px; border-radius: var(--radius-xs); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); }
+.method { font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 4px; min-width: 50px; text-align: center; letter-spacing: 0.04em; }
+.m-get { background: rgba(34,197,94,0.2); color: #86EFAC; }
+.m-post { background: rgba(0,102,255,0.25); color: #93C5FD; }
+.m-delete { background: rgba(239,68,68,0.2); color: #FCA5A5; }
+.m-patch { background: rgba(234,179,8,0.2); color: #FDE68A; }
+.log-path { color: rgba(255,255,255,0.75); flex: 1; }
+.log-status { color: #86EFAC; font-size: 10.5px; }
+.log-time { color: rgba(255,255,255,0.25); font-size: 10px; }
+
+footer { border-top: 1px solid var(--line); background: var(--white); padding: 24px 2.5rem; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--ink-4); }
+footer .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; color: var(--ink); }
+footer .logo span { color: var(--accent); }
+
+.toast-wrap { position: fixed; top: 76px; right: 20px; z-index: 400; display: flex; flex-direction: column; gap: 6px; }
+.toast { background: var(--ink); color: var(--white); padding: 10px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow-lg); animation: toastIn 0.25s ease; border: 1px solid #2A2A2A; }
+@keyframes toastIn { from{transform:translateX(40px);opacity:0} to{transform:translateX(0);opacity:1} }
+
+@media (max-width: 768px) {
+  .hero { grid-template-columns: 1fr; gap: 32px; padding: 60px 1.5rem 40px; }
+  .stats-bar { gap: 30px; padding: 16px 1.5rem; }
+  nav { padding: 0 1.5rem; }
+  .nav-links { display: none; }
+  .form-grid { grid-template-columns: 1fr; }
+  .contact-grid { grid-template-columns: 1fr; }
+}
+.contact-section { margin: 0 0 0; padding: 0; }
+.contact-outer { background: #081628; padding: 80px 2.5rem; }
+.contact-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.5fr; gap: 60px; align-items: start; }
+.contact-info-title { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 14px; letter-spacing: -1px; line-height: 1.15; }
+.contact-info-title span { color: var(--accent); }
+.contact-info-desc { font-size: 15px; color: rgba(255,255,255,0.5); line-height: 1.65; margin-bottom: 36px; }
+.contact-items { display: flex; flex-direction: column; gap: 16px; }
+.contact-item { display: flex; align-items: center; gap: 12px; font-size: 14px; color: rgba(255,255,255,0.7); }
+.ci-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.contact-form-wrap { background: rgba(255,255,255,0.05); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); padding: 32px; backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 16px; }
+.cf-field { display: flex; flex-direction: column; gap: 6px; }
+.cf-field label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; }
+.cf-field input, .cf-field select, .cf-field textarea { border: 1.5px solid rgba(255,255,255,0.1); border-radius: var(--radius-sm); background: rgba(255,255,255,0.07); color: #fff; padding: 11px 14px; font-size: 14px; font-family: 'Instrument Sans', sans-serif; outline: none; transition: border-color 0.15s, background 0.15s; resize: none; }
+.cf-field input::placeholder, .cf-field textarea::placeholder { color: rgba(255,255,255,0.25); }
+.cf-field select option { background: #0D2240; color: #fff; }
+.cf-field input:focus, .cf-field select:focus, .cf-field textarea:focus { border-color: var(--accent); background: rgba(0,102,255,0.1); }
+.btn-send { height: 48px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; font-family: 'Instrument Sans', sans-serif; cursor: pointer; transition: background 0.15s, transform 0.1s; margin-top: 4px; letter-spacing: 0.02em; }
+.btn-send:hover { background: #0052CC; }
+.btn-send:active { transform: scale(0.99); }
+.sec-header-dark { max-width: 1100px; margin: 0 auto; padding: 0 0 32px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 48px; display: flex; align-items: flex-end; justify-content: space-between; }
+.sec-header-dark h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: #fff; letter-spacing: -0.8px; }
+.sec-header-dark p { font-size: 13px; color: rgba(255,255,255,0.3); font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Park<span class="dot">&</span>Fly</div>
+  <div class="nav-links">
+    <a onclick="scrollTo({top:0,behavior:'smooth'})">Domov</a>
+    <a onclick="document.getElementById('sec-airports').scrollIntoView({behavior:'smooth'})">Letiská</a>
+    <a onclick="document.getElementById('sec-contact').scrollIntoView({behavior:'smooth'})">Kontakt</a>
+    <a class="nav-cta" onclick="document.getElementById('sec-airports').scrollIntoView({behavior:'smooth'})">Rezervovať →</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag">Slovenské letiská · Live obsadenosť</div>
+    <h1>Parkovanie<br/>bez <span class="blue">stresu.</span></h1>
+    <p>Rezervujte si miesto pri slovenských letiskách online. Reálna obsadenosť, výber sektora a evidencia ŠPZ v reálnom čase.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="document.getElementById('sec-airports').scrollIntoView({behavior:'smooth'})">Nájsť miesto →</button>
+      <button class="btn-ghost" onclick="document.getElementById('sec-api').scrollIntoView({behavior:'smooth'})">Zobraziť API</button>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-right-title">Rýchle vyhľadanie</div>
+    <div class="field">
+      <label>Letisko</label>
+      <select id="f-airport">
+        <option value="">Všetky letiská</option>
+        <option value="BTS">BTS — Bratislava</option>
+        <option value="KSC">KSC — Košice</option>
+        <option value="POP">POP — Poprad</option>
+        <option value="TAT">TAT — Tatry</option>
+        <option value="ILZ">ILZ — Žilina</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Príjazd</label><input type="date" id="f-from"/></div>
+      <div class="field"><label>Odchod</label><input type="date" id="f-to"/></div>
+    </div>
+    <button class="btn-search-hero" onclick="doSearch()">Hľadať dostupné miesta</button>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-num" id="s-total">—</div><div class="stat-desc">Miest celkom</div></div>
+  <div class="stat-item"><div class="stat-num" id="s-free" style="color:var(--green)">—</div><div class="stat-desc">Voľných teraz</div></div>
+  <div class="stat-item"><div class="stat-num">5</div><div class="stat-desc">Letiská SR</div></div>
+  <div class="stat-item"><div class="stat-num" id="s-res">0</div><div class="stat-desc">Rezervácií dnes</div></div>
+</div>
+
+<section class="airports-section" id="sec-airports">
+  <div class="sec-header">
+    <h2>Dostupné letiská</h2>
+    <p id="airport-count">5 letísk · live dáta</p>
+  </div>
+  <div class="airports-grid" id="airports-grid"></div>
+</section>
+
+
+
+<section class="contact-section" id="sec-contact">
+  <div class="contact-outer">
+    <div class="sec-header-dark">
+      <h2>Kontakt</h2>
+      <p>Máte otázku? Napíšte nám</p>
+    </div>
+    <div class="contact-inner">
+      <div class="contact-info">
+        <div class="contact-info-title">Sme tu<br/>pre <span>vás.</span></div>
+        <p class="contact-info-desc">Napíšte nám správu a ozveme sa vám do 24 hodín. Radi vám pomôžeme s rezerváciou alebo akoukoľvek otázkou.</p>
+        <div class="contact-items">
+          <div class="contact-item"><span class="ci-icon">📍</span><span>Letisková 1, 821 11 Bratislava</span></div>
+          <div class="contact-item"><span class="ci-icon">📞</span><span>+421 900 123 456</span></div>
+          <div class="contact-item"><span class="ci-icon">✉️</span><span>info@parkandfly.sk</span></div>
+          <div class="contact-item"><span class="ci-icon">🕐</span><span>Po–Ne, 06:00 – 22:00</span></div>
+        </div>
+      </div>
+      <div class="contact-form-wrap">
+        <div class="cf-field">
+          <label>Meno a priezvisko</label>
+          <input type="text" id="cf-name" placeholder="Ján Novák"/>
+        </div>
+        <div class="cf-field">
+          <label>E-mail</label>
+          <input type="email" id="cf-email" placeholder="jan@email.sk"/>
+        </div>
+        <div class="cf-field">
+          <label>Letisko</label>
+          <select id="cf-airport">
+            <option value="">Vyberte letisko (voliteľné)</option>
+            <option>BTS — Bratislava</option>
+            <option>KSC — Košice</option>
+            <option>POP — Poprad</option>
+            <option>TAT — Tatry</option>
+            <option>ILZ — Žilina</option>
+          </select>
+        </div>
+        <div class="cf-field">
+          <label>Správa</label>
+          <textarea id="cf-msg" placeholder="Vaša otázka alebo správa..." rows="4"></textarea>
+        </div>
+        <button class="btn-send" onclick="sendContact()">Odoslať správu →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="logo">Park<span>&</span>Fly</div>
+  <div>© 2025 Park & Fly Slovakia</div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-head-info">
+        <h2 id="m-title">Letisko</h2>
+        <p id="m-sub">Výber parkovacieho miesta</p>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="legend-row">
+        <div class="leg"><div class="leg-sq" style="background:var(--green-bg);border-color:#9ADCBA"></div>Voľné</div>
+        <div class="leg"><div class="leg-sq" style="background:var(--red-bg);border-color:#EFAAAA"></div>Obsadené</div>
+        <div class="leg"><div class="leg-sq" style="background:var(--orange-bg);border-color:#F5C897"></div>Rezervované</div>
+        <div class="leg"><div class="leg-sq" style="background:var(--accent-pale);border-color:var(--accent)"></div>Vybraté</div>
+      </div>
+      <div id="sectors-wrap"></div>
+      <div class="divider"></div>
+      <div class="res-heading">Detaily rezervácie</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Vybraté miesto</label>
+          <div class="selected-display"><span>📍</span><span id="sel-text">Kliknite na miesto</span></div>
+        </div>
+        <div class="form-field">
+          <label>ŠPZ vozidla</label>
+          <input type="text" id="spz" placeholder="napr. BB123AB" maxlength="8" oninput="calcPrice()"/>
+        </div>
+        <div class="form-field">
+          <label>Dátum príjazdu</label>
+          <input type="date" id="r-from" oninput="calcPrice()"/>
+        </div>
+        <div class="form-field">
+          <label>Dátum odchodu</label>
+          <input type="date" id="r-to" oninput="calcPrice()"/>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-label">Celková cena</span>
+        <span class="price-val"><span id="price-num">—</span> <span class="small">€</span></span>
+      </div>
+      <button class="btn-confirm" id="btn-confirm" onclick="confirmReservation()" disabled>Potvrdiť rezerváciu</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-overlay" id="suc-overlay">
+  <div class="success-card">
+    <div class="success-icon">✓</div>
+    <h2>Rezervácia potvrdená</h2>
+    <p>Vaše miesto je zarezervované. Prineste potvrdenie na letisko.</p>
+    <div class="suc-table" id="suc-table"></div>
+    <button class="btn-done" onclick="closeSuc()">Zatvoriť</button>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+const AIRPORTS=[
+  {id:'BTS',name:'Letisko M. R. Štefánika',city:'Bratislava',sectors:['A','B','C'],sps:16,ppd:8},
+  {id:'KSC',name:'Letisko Košice',city:'Košice',sectors:['A','B'],sps:12,ppd:6},
+  {id:'POP',name:'Letisko Poprad-Tatry',city:'Poprad',sectors:['A','B'],sps:10,ppd:5},
+  {id:'TAT',name:'Letisko Tatry',city:'Tatry',sectors:['A'],sps:8,ppd:4},
+  {id:'ILZ',name:'Letisko Žilina',city:'Žilina',sectors:['A','B'],sps:10,ppd:5},
+];
+const spots={};
+AIRPORTS.forEach(a=>a.sectors.forEach(s=>{
+  for(let i=1;i<=a.sps;i++){
+    const id=`${a.id}-${s}${String(i).padStart(2,'0')}`;
+    const r=Math.random();
+    spots[id]=r<0.38?'occupied':r<0.48?'reserved':'free';
+  }
+}));
+let selSpot=null,activeAp=null,reservations=[],logCount=0,logEntries=[];
+
+function getStats(a){
+  let free=0,occ=0,res=0,tot=0;
+  a.sectors.forEach(s=>{for(let i=1;i<=a.sps;i++){const id=`${a.id}-${s}${String(i).padStart(2,'0')}`;tot++;if(spots[id]==='free')free++;else if(spots[id]==='occupied')occ++;else res++;}});
+  return{free,occ,res,tot};
+}
+function renderGlobal(){
+  let tf=0,tt=0;
+  AIRPORTS.forEach(a=>{const s=getStats(a);tf+=s.free;tt+=s.tot;});
+  document.getElementById('s-total').textContent=tt;
+  document.getElementById('s-free').textContent=tf;
+  document.getElementById('s-res').textContent=reservations.length;
+}
+function renderAirports(filter=''){
+  const list=filter?AIRPORTS.filter(a=>a.id===filter):AIRPORTS;
+  document.getElementById('airport-count').textContent=`${list.length} letísk · live dáta`;
+  document.getElementById('airports-grid').innerHTML=list.map(a=>{
+    const s=getStats(a);
+    const pct=Math.round((s.occ+s.res)/s.tot*100);
+    const bar=pct>=90?'var(--red)':pct>=65?'var(--orange)':'var(--green)';
+    return`<div class="airport-card" onclick="openModal('${a.id}')">
+      <div class="ac-top"><div class="ac-iata">${a.id}</div><span class="ac-status ${s.free===0?'s-full':'s-open'}">${s.free===0?'PLNÉ':'OPEN'}</span></div>
+      <div class="ac-body">
+        <div class="ac-name">${a.name}</div>
+        <div class="ac-city">${a.city} · ${a.ppd} €/deň</div>
+        <div class="ac-numbers">
+          <div class="ac-num-item"><div class="ac-num-val v-green">${s.free}</div><div class="ac-num-label">Voľné</div></div>
+          <div class="ac-num-item"><div class="ac-num-val v-red">${s.occ}</div><div class="ac-num-label">Obsadené</div></div>
+          <div class="ac-num-item"><div class="ac-num-val v-ink">${s.tot}</div><div class="ac-num-label">Celkom</div></div>
+        </div>
+        <div class="ac-progress"><div class="ac-progress-fill" style="width:${pct}%;background:${bar}"></div></div>
+        <button class="ac-btn">Zobraziť parkovisko →</button>
+      </div>
+    </div>`;
+  }).join('');
+  renderGlobal();
+  logApi('GET',`/api/airports${filter?`?iata=${filter}`:''}`);}
+
+function openModal(id){
+  activeAp=AIRPORTS.find(a=>a.id===id);selSpot=null;
+  document.getElementById('m-title').textContent=`${activeAp.id} — ${activeAp.name}`;
+  document.getElementById('m-sub').textContent=`${activeAp.city} · ${activeAp.ppd} €/deň`;
+  document.getElementById('sel-text').textContent='Kliknite na miesto';
+  document.getElementById('spz').value='';
+  document.getElementById('price-num').textContent='—';
+  document.getElementById('btn-confirm').disabled=true;
+  const t=new Date(),tm=new Date(t);tm.setDate(tm.getDate()+1);
+  document.getElementById('r-from').value=t.toISOString().split('T')[0];
+  document.getElementById('r-to').value=tm.toISOString().split('T')[0];
+  renderSectors();
+  document.getElementById('modal-overlay').classList.add('open');
+  logApi('GET',`/api/airports/${id}/spots`);
+}
+function handleOverlayClick(e){if(e.target.id==='modal-overlay')closeModal();}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
+
+function renderSectors(){
+  document.getElementById('sectors-wrap').innerHTML=activeAp.sectors.map(s=>{
+    const ids=[];for(let i=1;i<=activeAp.sps;i++)ids.push(`${activeAp.id}-${s}${String(i).padStart(2,'0')}`);
+    const free=ids.filter(id=>spots[id]==='free').length;
+    return`<div class="sector-block">
+      <div class="sector-head"><span class="sector-head-name">Sektor ${s}</span><span class="sector-head-count">${free} voľných</span></div>
+      <div class="spots-grid">${ids.map(id=>{
+        const st=id===selSpot?'selected':spots[id];
+        return`<button class="spot-btn ${st}" onclick="pickSpot('${id}')">${id.split('-')[1]}</button>`;
+      }).join('')}</div>
+    </div>`;
+  }).join('');
+}
+function pickSpot(id){
+  if(spots[id]==='occupied'||spots[id]==='reserved')return;
+  selSpot=id;document.getElementById('sel-text').textContent=id;
+  renderSectors();calcPrice();toast(`Miesto ${id} vybraté`);logApi('GET',`/api/spots/${id}`);
+}
+function calcPrice(){
+  const f=document.getElementById('r-from').value,t=document.getElementById('r-to').value;
+  const spz=document.getElementById('spz').value.trim();
+  if(f&&t&&selSpot){
+    const d=Math.max(1,Math.round((new Date(t)-new Date(f))/(864e5)));
+    document.getElementById('price-num').textContent=d*activeAp.ppd;
+    document.getElementById('btn-confirm').disabled=!spz;
+  }else{document.getElementById('price-num').textContent='—';document.getElementById('btn-confirm').disabled=true;}
+}
+function confirmReservation(){
+  const spz=document.getElementById('spz').value.trim().toUpperCase();
+  const f=document.getElementById('r-from').value,t=document.getElementById('r-to').value;
+  if(!selSpot||!spz||!f||!t)return;
+  const d=Math.max(1,Math.round((new Date(t)-new Date(f))/(864e5)));
+  const price=d*activeAp.ppd;
+  const rid='PF-'+Math.random().toString(36).substr(2,6).toUpperCase();
+  spots[selSpot]='reserved';reservations.push({id:rid,spot:selSpot,spz,from:f,to:t,price});
+  logApi('POST','/api/reservations','201 Created');
+  document.getElementById('suc-table').innerHTML=
+    [['Rezervácia',rid],['Letisko',activeAp.id],['Miesto',selSpot],['ŠPZ',spz],['Od',f],['Do',t],['Cena',price+' €']]
+    .map(([k,v])=>`<div class="suc-row"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
+  document.getElementById('suc-overlay').classList.add('open');
+  closeModal();renderAirports();
+}
+function closeSuc(){document.getElementById('suc-overlay').classList.remove('open');logApi('GET','/api/reservations');}
+function doSearch(){
+  const v=document.getElementById('f-airport').value;renderAirports(v);
+  toast('Letiská aktualizované');
+  document.getElementById('sec-airports').scrollIntoView({behavior:'smooth'});
+}
+function logApi(method,path,status='200 OK'){
+  const now=new Date();
+  const t=now.getHours()+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+  logEntries.unshift({method,path,status,t});if(logEntries.length>20)logEntries.pop();
+  logCount++;document.getElementById('log-count').textContent=`${logCount} requestov`;
+  const mc={GET:'m-get',POST:'m-post',DELETE:'m-delete',PATCH:'m-patch'};
+  document.getElementById('api-log').innerHTML=logEntries.map(e=>
+    `<div class="api-log-item"><span class="method ${mc[e.method]||'m-get'}">${e.method}</span><span class="log-path">${e.path}</span><span class="log-status">${e.status}</span><span class="log-time">${e.t}</span></div>`
+  ).join('');
+}
+function sendContact(){
+  const name=document.getElementById('cf-name').value.trim();
+  const email=document.getElementById('cf-email').value.trim();
+  const msg=document.getElementById('cf-msg').value.trim();
+  if(!name||!email||!msg){toast('Vyplňte meno, e-mail a správu');return;}
+  document.getElementById('cf-name').value='';
+  document.getElementById('cf-email').value='';
+  document.getElementById('cf-msg').value='';
+  document.getElementById('cf-airport').selectedIndex=0;
+  toast('✓ Správa odoslaná, ozveme sa do 24h');
+}
+
+  const w=document.getElementById('toasts'),t=document.createElement('div');
+  t.className='toast';t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),2600);
+
+const td=new Date(),tm=new Date(td);tm.setDate(tm.getDate()+1);
+document.getElementById('f-from').value=td.toISOString().split('T')[0];
+document.getElementById('f-to').value=tm.toISOString().split('T')[0];
+renderAirports();logApi('GET','/api/airports');
+</script>
+</body>
+</html>
