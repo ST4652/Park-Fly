@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Park & Fly — Rezervácia</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+ 
+:root {
+  --bg: #0E0E20;
+  --bg2: #171738;
+  --bg3: #1E1E45;
+  --bg4: #252555;
+  --gold: #F9CB40;
+  --gold-dim: rgba(249,203,64,0.15);
+  --gold-dim2: rgba(249,203,64,0.08);
+  --gold-border: rgba(249,203,64,0.3);
+  --white: #FFFFFF;
+  --text: #E8E8F0;
+  --text-2: #9898B8;
+  --text-3: #5C5C7A;
+  --line: rgba(255,255,255,0.07);
+  --line2: rgba(255,255,255,0.12);
+  --green: #2ECC71;
+  --green-bg: rgba(46,204,113,0.1);
+  --red: #E74C3C;
+  --red-bg: rgba(231,76,60,0.1);
+  --orange: #E67E22;
+  --orange-bg: rgba(230,126,34,0.1);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  --shadow-gold: 0 0 40px rgba(249,203,64,0.15);
+  --glow: 0 0 20px rgba(249,203,64,0.4);
+}
+ 
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+ 
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+ 
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 68px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 3rem;
+  background: rgba(14,14,32,0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--line);
+  transition: background 0.3s;
+}
+nav.scrolled { background: rgba(14,14,32,0.97); }
+.nav-logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--white); text-decoration: none; letter-spacing: -0.5px; display: flex; align-items: center; gap: 2px; }
+.nav-logo .amp { color: var(--gold); }
+.nav-links { display: flex; gap: 2.5rem; align-items: center; }
+.nav-links a { font-size: 13px; font-weight: 500; color: var(--text-2); text-decoration: none; transition: color 0.2s; letter-spacing: 0.01em; }
+.nav-links a:hover, .nav-links a.active { color: var(--white); }
+.nav-btn { background: var(--gold); color: var(--bg2) !important; padding: 8px 18px; border-radius: 20px; font-weight: 700 !important; font-size: 13px !important; transition: transform 0.15s, box-shadow 0.15s !important; }
+.nav-btn:hover { transform: translateY(-1px); box-shadow: var(--glow) !important; color: var(--bg2) !important; }
+ 
+/* ─── PAGE WRAPPER ─── */
+.page-wrap { padding-top: 68px; }
+ 
+/* ─── BUTTONS ─── */
+.btn { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 26px; border-radius: 24px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s, background 0.15s; border: none; text-decoration: none; }
+.btn:active { transform: scale(0.97); }
+.btn-gold { background: var(--gold); color: var(--bg2); }
+.btn-gold:hover { box-shadow: var(--glow); transform: translateY(-2px); }
+.btn-outline { background: transparent; color: var(--text); border: 1.5px solid var(--line2); }
+.btn-outline:hover { border-color: var(--gold-border); color: var(--gold); }
+.btn-dark { background: var(--bg3); color: var(--text); border: 1px solid var(--line2); }
+.btn-dark:hover { border-color: var(--gold-border); }
+ 
+/* ─── SECTION HEADER ─── */
+.sec-head { margin-bottom: 40px; }
+.sec-head .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.sec-head .label::before { content:''; width: 24px; height: 1px; background: var(--gold); }
+.sec-head h2 { font-family: 'Syne', sans-serif; font-size: clamp(28px, 4vw, 38px); font-weight: 800; color: var(--white); letter-spacing: -1px; line-height: 1.15; }
+.sec-head p { font-size: 15px; color: var(--text-2); margin-top: 12px; line-height: 1.6; }
+ 
+/* ─── CARDS ─── */
+.card { background: var(--bg2); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+.card:hover { border-color: var(--gold-border); transform: translateY(-3px); box-shadow: var(--shadow-gold); }
+ 
+/* ─── FORM FIELDS ─── */
+.f-group { display: flex; flex-direction: column; gap: 6px; }
+.f-group label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; }
+.f-group input, .f-group select, .f-group textarea {
+  background: var(--bg3); border: 1.5px solid var(--line); border-radius: var(--radius-sm);
+  color: var(--text); padding: 11px 14px; font-size: 14px; font-family: 'Inter', sans-serif;
+  outline: none; transition: border-color 0.2s, background 0.2s;
+}
+.f-group input::placeholder, .f-group textarea::placeholder { color: var(--text-3); }
+.f-group select option { background: var(--bg2); }
+.f-group input:focus, .f-group select:focus, .f-group textarea:focus { border-color: var(--gold); background: var(--bg4); }
+.f-group select { height: 44px; }
+.f-group input[type="date"], .f-group input[type="text"], .f-group input[type="email"] { height: 44px; }
+.f-group textarea { resize: none; }
+ 
+/* ─── GRID HELPERS ─── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+ 
+/* ─── STATS ─── */
+.stat-num { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: var(--gold); letter-spacing: -1px; }
+.stat-label { font-size: 12px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+ 
+/* ─── SPOT BUTTONS ─── */
+.spot-btn { height: 36px; border-radius: var(--radius-xs); border: 1.5px solid; font-size: 11px; font-weight: 500; font-family: 'JetBrains Mono', monospace; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; display: flex; align-items: center; justify-content: center; }
+.spot-btn:hover:not(.occupied):not(.reserved) { transform: scale(1.1); }
+.spot-btn.free { background: var(--green-bg); color: var(--green); border-color: rgba(46,204,113,0.3); }
+.spot-btn.occupied { background: var(--red-bg); color: var(--red); border-color: rgba(231,76,60,0.3); cursor: not-allowed; opacity: 0.5; }
+.spot-btn.reserved { background: var(--orange-bg); color: var(--orange); border-color: rgba(230,126,34,0.3); cursor: not-allowed; opacity: 0.5; }
+.spot-btn.selected { background: var(--gold-dim); color: var(--gold); border-color: var(--gold); box-shadow: 0 0 12px rgba(249,203,64,0.3); }
+ 
+/* ─── BADGE ─── */
+.badge { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; font-family: 'JetBrains Mono', monospace; }
+.badge-open { background: var(--green-bg); color: var(--green); }
+.badge-full { background: var(--red-bg); color: var(--red); }
+.badge-gold { background: var(--gold-dim); color: var(--gold); }
+ 
+/* ─── PROGRESS BAR ─── */
+.progress { height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+ 
+/* ─── SUCCESS OVERLAY ─── */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(10px); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.overlay.open { opacity: 1; pointer-events: all; }
+.overlay-card { background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 24px; padding: 48px 40px; max-width: 440px; width: 100%; text-align: center; box-shadow: var(--shadow-gold); transform: translateY(20px); transition: transform 0.25s; }
+.overlay.open .overlay-card { transform: translateY(0); }
+.overlay-icon { width: 72px; height: 72px; background: var(--gold-dim); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 24px; border: 1.5px solid var(--gold-border); }
+.overlay-card h2 { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: var(--white); margin-bottom: 10px; letter-spacing: -0.5px; }
+.overlay-card p { font-size: 14px; color: var(--text-2); margin-bottom: 28px; line-height: 1.6; }
+.detail-table { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px; text-align: left; margin-bottom: 24px; border: 1px solid var(--line); }
+.detail-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+.detail-row:last-child { border-bottom: none; }
+.detail-row .dk { color: var(--text-3); }
+.detail-row .dv { font-weight: 600; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+ 
+/* ─── TOAST ─── */
+.toast-wrap { position: fixed; bottom: 28px; right: 28px; z-index: 400; display: flex; flex-direction: column; gap: 8px; }
+.toast { background: var(--bg3); color: var(--text); padding: 12px 18px; border-radius: 12px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow); animation: toastUp 0.3s ease; border-left: 3px solid var(--gold); }
+@keyframes toastUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+ 
+/* ─── FOOTER ─── */
+footer { background: var(--bg2); border-top: 1px solid var(--line); padding: 32px 3rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.footer-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--white); }
+.footer-logo span { color: var(--gold); }
+footer p { font-size: 13px; color: var(--text-3); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 13px; color: var(--text-3); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(--gold); }
+ 
+/* ─── ANIMATIONS ─── */
+.fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+.fade-up-delay-1 { transition-delay: 0.1s; }
+.fade-up-delay-2 { transition-delay: 0.2s; }
+.fade-up-delay-3 { transition-delay: 0.3s; }
+.fade-up-delay-4 { transition-delay: 0.4s; }
+ 
+@media (max-width: 768px) {
+  nav { padding: 0 1.5rem; }
+  .nav-links { display: none; }
+  footer { padding: 24px 1.5rem; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+ 
+</style>
+<style>
+.page-hero { background: var(--bg2); border-bottom: 1px solid var(--line); padding: 48px 3rem 36px; position: relative; }
+.page-hero::after { content:''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-border), transparent); }
+.page-hero-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.page-hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(26px, 3vw, 36px); font-weight: 800; color: var(--white); letter-spacing: -1px; }
+.page-hero p { font-size: 13px; color: var(--text-3); margin-top: 6px; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-3); text-decoration: none; transition: color 0.2s; }
+.back-link:hover { color: var(--gold); }
+ 
+.content { max-width: 1200px; margin: 0 auto; padding: 40px 3rem 80px; display: grid; grid-template-columns: 1.5fr 1fr; gap: 28px; align-items: start; }
+ 
+/* MAP PANEL */
+.map-panel { background: var(--bg2); border-radius: var(--radius); border: 1px solid var(--line); overflow: hidden; }
+.map-panel-head { padding: 22px 26px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+.map-panel-head h2 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--white); }
+.map-panel-head p { font-size: 12px; color: var(--text-3); font-family: 'JetBrains Mono', monospace; }
+.map-panel-body { padding: 22px 26px 26px; }
+ 
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+.leg { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-3); }
+.leg-sq { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid; }
+ 
+.sector-block { margin-bottom: 24px; }
+.sector-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.sector-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--gold); letter-spacing: 0.02em; }
+.sector-count { font-size: 11px; color: var(--text-3); font-family: 'JetBrains Mono', monospace; }
+.spots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 6px; }
+ 
+/* FORM PANEL */
+.form-panel { background: var(--bg2); border-radius: var(--radius); border: 1px solid var(--line); padding: 28px; position: sticky; top: 88px; }
+.form-panel-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--white); margin-bottom: 6px; letter-spacing: -0.4px; }
+.form-panel-sub { font-size: 13px; color: var(--text-3); margin-bottom: 26px; }
+ 
+.sel-spot { height: 44px; background: var(--gold-dim); border: 1.5px solid var(--gold-border); border-radius: var(--radius-sm); padding: 0 14px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--gold); font-family: 'JetBrains Mono', monospace; }
+ 
+.form-fields { display: flex; flex-direction: column; gap: 14px; }
+.divider { height: 1px; background: var(--line); }
+ 
+.price-box { background: var(--bg3); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; }
+.price-box-label { font-size: 13px; color: var(--text-3); }
+.price-box-val { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--gold); letter-spacing: -1px; }
+.price-box-val .eur { font-size: 14px; font-weight: 500; color: var(--text-3); }
+ 
+.confirm-btn { width: 100%; height: 50px; background: var(--gold); color: var(--bg2); border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer; transition: box-shadow 0.2s, transform 0.15s; letter-spacing: 0.02em; }
+.confirm-btn:hover { box-shadow: var(--glow); transform: translateY(-1px); }
+.confirm-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
+ 
+@media (max-width: 900px) {
+  .content { grid-template-columns: 1fr; }
+  .form-panel { position: static; }
+  .page-hero, .content { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+</style>
+</head>
+<body>
+ 
+<nav id="nav">
+  <a class="nav-logo" href="index.html">Park<span class="amp">&</span>Fly</a>
+  <div class="nav-links">
+    <a href="index.html">Domov</a>
+    <a href="letiska.html">Letiská</a>
+    <a href="rezervacia.html" class="active">Rezervácia</a>
+    <a href="kontakt.html">Kontakt</a>
+    <a href="letiska.html" class="nav-btn">Rezervovať →</a>
+  </div>
+</nav>
+ 
+<div class="page-wrap">
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div>
+      <a class="back-link" href="letiska.html">← Späť na letiská</a>
+      <h1 id="page-title">Rezervácia parkovacieho miesta</h1>
+      <p id="page-sub">Vyberte sektor a miesto</p>
+    </div>
+    <span class="badge badge-gold" id="airport-badge">BTS</span>
+  </div>
+</div>
+ 
+<div class="content">
+  <!-- MAP -->
+  <div class="map-panel fade-up">
+    <div class="map-panel-head">
+      <h2 id="map-title">Parkovisko</h2>
+      <p id="map-sub">Kliknite na voľné miesto</p>
+    </div>
+    <div class="map-panel-body">
+      <div class="legend">
+        <div class="leg"><div class="leg-sq" style="background:var(--green-bg);border-color:rgba(46,204,113,0.4)"></div>Voľné</div>
+        <div class="leg"><div class="leg-sq" style="background:var(--red-bg);border-color:rgba(231,76,60,0.4)"></div>Obsadené</div>
+        <div class="leg"><div class="leg-sq" style="background:var(--orange-bg);border-color:rgba(230,126,34,0.4)"></div>Rezervované</div>
+        <div class="leg"><div class="leg-sq" style="background:var(--gold-dim);border-color:var(--gold)"></div>Vybraté</div>
+      </div>
+      <div id="sectors-wrap"></div>
+    </div>
+  </div>
+ 
+  <!-- FORM -->
+  <div class="form-panel fade-up fade-up-delay-1">
+    <div class="form-panel-title">Detaily rezervácie</div>
+    <p class="form-panel-sub" id="form-sub">Vyplňte údaje nižšie</p>
+ 
+    <div class="form-fields">
+      <div class="f-group">
+        <label>Vybraté miesto</label>
+        <div class="sel-spot"><span>📍</span><span id="sel-text">Kliknite na miesto v mape</span></div>
+      </div>
+      <div class="grid-2">
+        <div class="f-group"><label>Príjazd</label><input type="date" id="r-from" oninput="calcPrice()"/></div>
+        <div class="f-group"><label>Odchod</label><input type="date" id="r-to" oninput="calcPrice()"/></div>
+      </div>
+      <div class="f-group"><label>ŠPZ vozidla</label><input type="text" id="spz" placeholder="BB123AB" maxlength="8" oninput="calcPrice()"/></div>
+      <div class="f-group"><label>Meno a priezvisko</label><input type="text" id="meno" placeholder="Ján Novák"/></div>
+      <div class="f-group"><label>E-mail</label><input type="email" id="email" placeholder="jan@email.sk"/></div>
+      <div class="divider"></div>
+      <div class="price-box">
+        <span class="price-box-label">Celková cena</span>
+        <span class="price-box-val"><span id="price-num">—</span> <span class="eur">€</span></span>
+      </div>
+      <button class="confirm-btn" id="btn-confirm" onclick="confirmReservation()" disabled>Potvrdiť rezerváciu ✓</button>
+    </div>
+  </div>
+</div>
+ 
+<footer>
+  <div class="footer-logo">Park<span>&</span>Fly</div>
+  <p>© 2025 Park & Fly Slovakia</p>
+  <div class="footer-links">
+    <a href="index.html">Domov</a>
+    <a href="letiska.html">Letiská</a>
+    <a href="kontakt.html">Kontakt</a>
+  </div>
+</footer>
+</div>
+ 
+<!-- SUCCESS -->
+<div class="overlay" id="suc-overlay">
+  <div class="overlay-card">
+    <div class="overlay-icon">✓</div>
+    <h2>Rezervácia potvrdená!</h2>
+    <p>Vaše parkovacie miesto je zarezervované. Prineste potvrdenie na letisko.</p>
+    <div class="detail-table" id="suc-table"></div>
+    <button class="confirm-btn" onclick="window.location.href='letiska.html'">Späť na letiská</button>
+  </div>
+</div>
+ 
+<div class="toast-wrap" id="toasts"></div>
+ 
+<script>
+window.addEventListener('scroll', () => document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20));
+ 
+const AIRPORTS=[
+  {id:'BTS',name:'Letisko M. R. Štefánika',city:'Bratislava',sectors:['A','B','C'],sps:16,ppd:8},
+  {id:'KSC',name:'Letisko Košice',city:'Košice',sectors:['A','B'],sps:12,ppd:6},
+  {id:'POP',name:'Letisko Poprad-Tatry',city:'Poprad',sectors:['A','B'],sps:10,ppd:5},
+  {id:'TAT',name:'Letisko Tatry',city:'Tatry',sectors:['A'],sps:8,ppd:4},
+  {id:'ILZ',name:'Letisko Žilina',city:'Žilina',sectors:['A','B'],sps:10,ppd:5},
+  {id:'KTW',name:'Letisko Katowice-Pyrzowice',city:'Katowice, PL',sectors:['A','B'],sps:14,ppd:7},
+  {id:'KRK',name:'Letisko Kraków-Balice',city:'Kraków, PL',sectors:['A','B','C'],sps:18,ppd:7},
+];
+ 
+const params=new URLSearchParams(window.location.search);
+const airportId=params.get('airport')||'BTS';
+const fromDate=params.get('from')||new Date().toISOString().split('T')[0];
+const toDate=params.get('to')||(()=>{const d=new Date();d.setDate(d.getDate()+1);return d.toISOString().split('T')[0];})();
+ 
+const activeAp=AIRPORTS.find(a=>a.id===airportId)||AIRPORTS[0];
+const spots={};
+let selSpot=null;
+ 
+activeAp.sectors.forEach(s=>{
+  for(let i=1;i<=activeAp.sps;i++){
+    const id=`${activeAp.id}-${s}${String(i).padStart(2,'0')}`;
+    const r=Math.random();
+    spots[id]=r<0.38?'occupied':r<0.48?'reserved':'free';
+  }
+});
+ 
+document.getElementById('page-title').textContent=`Rezervácia — ${activeAp.id}`;
+document.getElementById('page-sub').textContent=`${activeAp.name} · ${activeAp.city}`;
+document.getElementById('airport-badge').textContent=activeAp.id;
+document.getElementById('map-title').textContent=`${activeAp.id} — Parkovisko`;
+document.getElementById('map-sub').textContent=`${activeAp.sectors.length} sektory · ${activeAp.ppd} €/deň`;
+document.getElementById('form-sub').textContent=`${activeAp.name} · ${activeAp.ppd} €/deň`;
+document.getElementById('r-from').value=fromDate;
+document.getElementById('r-to').value=toDate;
+ 
+function renderSectors(){
+  document.getElementById('sectors-wrap').innerHTML=activeAp.sectors.map(s=>{
+    const ids=[];for(let i=1;i<=activeAp.sps;i++)ids.push(`${activeAp.id}-${s}${String(i).padStart(2,'0')}`);
+    const free=ids.filter(id=>spots[id]==='free').length;
+    return`<div class="sector-block">
+      <div class="sector-head"><span class="sector-name">Sektor ${s}</span><span class="sector-count">${free} voľných miest</span></div>
+      <div class="spots-grid">${ids.map(id=>{
+        const st=id===selSpot?'selected':spots[id];
+        return`<button class="spot-btn ${st}" onclick="pickSpot('${id}')">${id.split('-')[1]}</button>`;
+      }).join('')}</div>
+    </div>`;
+  }).join('');
+}
+ 
+function pickSpot(id){
+  if(spots[id]==='occupied'||spots[id]==='reserved')return;
+  selSpot=id;
+  document.getElementById('sel-text').textContent=id;
+  renderSectors();calcPrice();toast(`✓ Miesto ${id} vybraté`);
+}
+ 
+function calcPrice(){
+  const f=document.getElementById('r-from').value,t=document.getElementById('r-to').value;
+  const spz=document.getElementById('spz').value.trim();
+  if(f&&t&&selSpot){
+    const d=Math.max(1,Math.round((new Date(t)-new Date(f))/(864e5)));
+    document.getElementById('price-num').textContent=d*activeAp.ppd;
+    document.getElementById('btn-confirm').disabled=!spz;
+  }else{
+    document.getElementById('price-num').textContent='—';
+    document.getElementById('btn-confirm').disabled=true;
+  }
+}
+ 
+function confirmReservation(){
+  const spz=document.getElementById('spz').value.trim().toUpperCase();
+  const f=document.getElementById('r-from').value,t=document.getElementById('r-to').value;
+  if(!selSpot||!spz||!f||!t)return;
+  const d=Math.max(1,Math.round((new Date(t)-new Date(f))/(864e5)));
+  const price=d*activeAp.ppd;
+  const rid='PF-'+Math.random().toString(36).substr(2,6).toUpperCase();
+  spots[selSpot]='reserved';
+  document.getElementById('suc-table').innerHTML=
+    [['Kód rezervácie',rid],['Letisko',activeAp.id],['Miesto',selSpot],['ŠPZ',spz],['Od',f],['Do',t],['Cena',price+' €']]
+    .map(([k,v])=>`<div class="detail-row"><span class="dk">${k}</span><span class="dv">${v}</span></div>`).join('');
+  document.getElementById('suc-overlay').classList.add('open');
+  renderSectors();
+}
+ 
+function toast(msg){
+  const w=document.getElementById('toasts'),t=document.createElement('div');
+  t.className='toast';t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),2800);
+}
+ 
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
+document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+ 
+renderSectors();
+</script>
+</body>
+</html>
