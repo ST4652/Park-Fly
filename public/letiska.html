@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Park & Fly — Letiská</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+ 
+:root {
+  --bg: #0E0E20;
+  --bg2: #171738;
+  --bg3: #1E1E45;
+  --bg4: #252555;
+  --gold: #F9CB40;
+  --gold-dim: rgba(249,203,64,0.15);
+  --gold-dim2: rgba(249,203,64,0.08);
+  --gold-border: rgba(249,203,64,0.3);
+  --white: #FFFFFF;
+  --text: #E8E8F0;
+  --text-2: #9898B8;
+  --text-3: #5C5C7A;
+  --line: rgba(255,255,255,0.07);
+  --line2: rgba(255,255,255,0.12);
+  --green: #2ECC71;
+  --green-bg: rgba(46,204,113,0.1);
+  --red: #E74C3C;
+  --red-bg: rgba(231,76,60,0.1);
+  --orange: #E67E22;
+  --orange-bg: rgba(230,126,34,0.1);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  --shadow-gold: 0 0 40px rgba(249,203,64,0.15);
+  --glow: 0 0 20px rgba(249,203,64,0.4);
+}
+ 
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+ 
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+ 
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 68px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 3rem;
+  background: rgba(14,14,32,0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--line);
+  transition: background 0.3s;
+}
+nav.scrolled { background: rgba(14,14,32,0.97); }
+.nav-logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--white); text-decoration: none; letter-spacing: -0.5px; display: flex; align-items: center; gap: 2px; }
+.nav-logo .amp { color: var(--gold); }
+.nav-links { display: flex; gap: 2.5rem; align-items: center; }
+.nav-links a { font-size: 13px; font-weight: 500; color: var(--text-2); text-decoration: none; transition: color 0.2s; letter-spacing: 0.01em; }
+.nav-links a:hover, .nav-links a.active { color: var(--white); }
+.nav-btn { background: var(--gold); color: var(--bg2) !important; padding: 8px 18px; border-radius: 20px; font-weight: 700 !important; font-size: 13px !important; transition: transform 0.15s, box-shadow 0.15s !important; }
+.nav-btn:hover { transform: translateY(-1px); box-shadow: var(--glow) !important; color: var(--bg2) !important; }
+ 
+/* ─── PAGE WRAPPER ─── */
+.page-wrap { padding-top: 68px; }
+ 
+/* ─── BUTTONS ─── */
+.btn { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 26px; border-radius: 24px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s, background 0.15s; border: none; text-decoration: none; }
+.btn:active { transform: scale(0.97); }
+.btn-gold { background: var(--gold); color: var(--bg2); }
+.btn-gold:hover { box-shadow: var(--glow); transform: translateY(-2px); }
+.btn-outline { background: transparent; color: var(--text); border: 1.5px solid var(--line2); }
+.btn-outline:hover { border-color: var(--gold-border); color: var(--gold); }
+.btn-dark { background: var(--bg3); color: var(--text); border: 1px solid var(--line2); }
+.btn-dark:hover { border-color: var(--gold-border); }
+ 
+/* ─── SECTION HEADER ─── */
+.sec-head { margin-bottom: 40px; }
+.sec-head .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.sec-head .label::before { content:''; width: 24px; height: 1px; background: var(--gold); }
+.sec-head h2 { font-family: 'Syne', sans-serif; font-size: clamp(28px, 4vw, 38px); font-weight: 800; color: var(--white); letter-spacing: -1px; line-height: 1.15; }
+.sec-head p { font-size: 15px; color: var(--text-2); margin-top: 12px; line-height: 1.6; }
+ 
+/* ─── CARDS ─── */
+.card { background: var(--bg2); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+.card:hover { border-color: var(--gold-border); transform: translateY(-3px); box-shadow: var(--shadow-gold); }
+ 
+/* ─── FORM FIELDS ─── */
+.f-group { display: flex; flex-direction: column; gap: 6px; }
+.f-group label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; }
+.f-group input, .f-group select, .f-group textarea {
+  background: var(--bg3); border: 1.5px solid var(--line); border-radius: var(--radius-sm);
+  color: var(--text); padding: 11px 14px; font-size: 14px; font-family: 'Inter', sans-serif;
+  outline: none; transition: border-color 0.2s, background 0.2s;
+}
+.f-group input::placeholder, .f-group textarea::placeholder { color: var(--text-3); }
+.f-group select option { background: var(--bg2); }
+.f-group input:focus, .f-group select:focus, .f-group textarea:focus { border-color: var(--gold); background: var(--bg4); }
+.f-group select { height: 44px; }
+.f-group input[type="date"], .f-group input[type="text"], .f-group input[type="email"] { height: 44px; }
+.f-group textarea { resize: none; }
+ 
+/* ─── GRID HELPERS ─── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+ 
+/* ─── STATS ─── */
+.stat-num { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: var(--gold); letter-spacing: -1px; }
+.stat-label { font-size: 12px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+ 
+/* ─── SPOT BUTTONS ─── */
+.spot-btn { height: 36px; border-radius: var(--radius-xs); border: 1.5px solid; font-size: 11px; font-weight: 500; font-family: 'JetBrains Mono', monospace; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; display: flex; align-items: center; justify-content: center; }
+.spot-btn:hover:not(.occupied):not(.reserved) { transform: scale(1.1); }
+.spot-btn.free { background: var(--green-bg); color: var(--green); border-color: rgba(46,204,113,0.3); }
+.spot-btn.occupied { background: var(--red-bg); color: var(--red); border-color: rgba(231,76,60,0.3); cursor: not-allowed; opacity: 0.5; }
+.spot-btn.reserved { background: var(--orange-bg); color: var(--orange); border-color: rgba(230,126,34,0.3); cursor: not-allowed; opacity: 0.5; }
+.spot-btn.selected { background: var(--gold-dim); color: var(--gold); border-color: var(--gold); box-shadow: 0 0 12px rgba(249,203,64,0.3); }
+ 
+/* ─── BADGE ─── */
+.badge { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; font-family: 'JetBrains Mono', monospace; }
+.badge-open { background: var(--green-bg); color: var(--green); }
+.badge-full { background: var(--red-bg); color: var(--red); }
+.badge-gold { background: var(--gold-dim); color: var(--gold); }
+ 
+/* ─── PROGRESS BAR ─── */
+.progress { height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+ 
+/* ─── SUCCESS OVERLAY ─── */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(10px); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.overlay.open { opacity: 1; pointer-events: all; }
+.overlay-card { background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 24px; padding: 48px 40px; max-width: 440px; width: 100%; text-align: center; box-shadow: var(--shadow-gold); transform: translateY(20px); transition: transform 0.25s; }
+.overlay.open .overlay-card { transform: translateY(0); }
+.overlay-icon { width: 72px; height: 72px; background: var(--gold-dim); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 24px; border: 1.5px solid var(--gold-border); }
+.overlay-card h2 { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: var(--white); margin-bottom: 10px; letter-spacing: -0.5px; }
+.overlay-card p { font-size: 14px; color: var(--text-2); margin-bottom: 28px; line-height: 1.6; }
+.detail-table { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px; text-align: left; margin-bottom: 24px; border: 1px solid var(--line); }
+.detail-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+.detail-row:last-child { border-bottom: none; }
+.detail-row .dk { color: var(--text-3); }
+.detail-row .dv { font-weight: 600; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+ 
+/* ─── TOAST ─── */
+.toast-wrap { position: fixed; bottom: 28px; right: 28px; z-index: 400; display: flex; flex-direction: column; gap: 8px; }
+.toast { background: var(--bg3); color: var(--text); padding: 12px 18px; border-radius: 12px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow); animation: toastUp 0.3s ease; border-left: 3px solid var(--gold); }
+@keyframes toastUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+ 
+/* ─── FOOTER ─── */
+footer { background: var(--bg2); border-top: 1px solid var(--line); padding: 32px 3rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.footer-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--white); }
+.footer-logo span { color: var(--gold); }
+footer p { font-size: 13px; color: var(--text-3); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 13px; color: var(--text-3); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(--gold); }
+ 
+/* ─── ANIMATIONS ─── */
+.fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+.fade-up-delay-1 { transition-delay: 0.1s; }
+.fade-up-delay-2 { transition-delay: 0.2s; }
+.fade-up-delay-3 { transition-delay: 0.3s; }
+.fade-up-delay-4 { transition-delay: 0.4s; }
+ 
+@media (max-width: 768px) {
+  nav { padding: 0 1.5rem; }
+  .nav-links { display: none; }
+  footer { padding: 24px 1.5rem; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+ 
+</style>
+<style>
+.page-hero { background: var(--bg2); border-bottom: 1px solid var(--line); padding: 60px 3rem 48px; position: relative; overflow: hidden; }
+.page-hero::after { content:''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-border), transparent); }
+.page-hero-inner { max-width: 1200px; margin: 0 auto; }
+.page-hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(32px, 4vw, 48px); font-weight: 800; color: var(--white); letter-spacing: -1.5px; margin-bottom: 8px; }
+.page-hero p { font-size: 15px; color: var(--text-2); }
+ 
+.filter-bar { background: var(--bg2); border-bottom: 1px solid var(--line); padding: 20px 3rem; }
+.filter-inner { max-width: 1200px; margin: 0 auto; display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; }
+.filter-inner .f-group { min-width: 160px; }
+.filter-btn { height: 44px; padding: 0 22px; background: var(--gold); color: var(--bg2); border: none; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer; transition: box-shadow 0.2s; white-space: nowrap; }
+.filter-btn:hover { box-shadow: var(--glow); }
+.reset-btn { height: 44px; padding: 0 16px; background: transparent; color: var(--text-2); border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; transition: color 0.2s, border-color 0.2s; }
+.reset-btn:hover { color: var(--text); border-color: var(--line2); }
+ 
+.content { max-width: 1200px; margin: 0 auto; padding: 48px 3rem 80px; }
+ 
+.airports-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+.airport-card { background: var(--bg2); border-radius: var(--radius); border: 1px solid var(--line); overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+.airport-card:hover { border-color: var(--gold-border); transform: translateY(-4px); box-shadow: var(--shadow-gold); }
+.ac-head { padding: 24px 24px 16px; display: flex; align-items: flex-start; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.ac-iata { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--white); letter-spacing: -1.5px; line-height: 1; }
+.ac-body { padding: 18px 24px 22px; }
+.ac-name { font-size: 15px; font-weight: 600; color: var(--white); margin-bottom: 3px; }
+.ac-city { font-size: 12px; color: var(--text-3); margin-bottom: 20px; }
+.ac-nums { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 16px; }
+.ac-num { background: var(--bg3); border-radius: var(--radius-xs); padding: 10px 8px; text-align: center; }
+.ac-num-val { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; }
+.nv-green { color: var(--green); } .nv-red { color: var(--red); } .nv-white { color: var(--text-2); }
+.ac-num-label { font-size: 10px; color: var(--text-3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
+.ac-btn { width: 100%; height: 42px; background: var(--bg3); color: var(--text); border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; }
+.ac-btn:hover { background: var(--gold); border-color: var(--gold); color: var(--bg2); }
+ 
+.count-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+.count-bar h2 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--white); letter-spacing: -0.5px; }
+.count-bar p { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-3); }
+ 
+@media (max-width: 768px) {
+  .page-hero, .filter-bar, .content { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .filter-inner { flex-direction: column; }
+  .filter-inner .f-group { width: 100%; }
+}
+</style>
+</head>
+<body>
+ 
+<nav id="nav">
+  <a class="nav-logo" href="index.html">Park<span class="amp">&</span>Fly</a>
+  <div class="nav-links">
+    <a href="index.html" class="active">Domov</a>
+    <a href="letiska.html">Letiská</a>
+    <a href="kontakt.html">Kontakt</a>
+    <a href="Bookflight.html">Rezervovať let</a>
+    <a href="rezervacia.html" class="nav-btn">Rezervovať →</a>
+  </div>
+</nav>
+ 
+<div class="page-wrap">
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">— Slovenské letiská</div>
+    <h1>Vyberte letisko</h1>
+    <p>Prehľad dostupných parkovísk s reálnou obsadenosťou.</p>
+  </div>
+</div>
+ 
+<div class="filter-bar">
+  <div class="filter-inner">
+    <div class="f-group">
+      <label>Letisko</label>
+      <select id="f-airport">
+        <option value="">Všetky letiská</option>
+        <option value="BTS">BTS — Bratislava</option>
+        <option value="KSC">KSC — Košice</option>
+        <option value="POP">POP — Poprad</option>
+        <option value="TAT">TAT — Tatry</option>
+        <option value="ILZ">ILZ — Žilina</option>
+        <option value="KTW">KTW — Katowice</option>
+        <option value="KRK">KRK — Kraków</option>
+      </select>
+    </div>
+    <div class="f-group">
+      <label>Príjazd</label>
+      <input type="date" id="f-from"/>
+    </div>
+    <div class="f-group">
+      <label>Odchod</label>
+      <input type="date" id="f-to"/>
+    </div>
+    <button class="filter-btn" onclick="applyFilter()">Filtrovať</button>
+    <button class="reset-btn" onclick="resetFilter()">Zrušiť</button>
+  </div>
+</div>
+ 
+<div class="content">
+  <div class="count-bar">
+    <h2>Dostupné letiská</h2>
+    <p id="count-label">5 letísk · live dáta</p>
+  </div>
+  <div class="airports-grid" id="airports-grid"></div>
+</div>
+ 
+<footer>
+  <div class="footer-logo">Park<span>&</span>Fly</div>
+  <p>© 2025 Park & Fly Slovakia</p>
+  <div class="footer-links">
+    <a href="index.html">Domov</a>
+    <a href="letiska.html">Letiská</a>
+    <a href="kontakt.html">Kontakt</a>
+  </div>
+</footer>
+</div>
+ 
+<div class="toast-wrap" id="toasts"></div>
+ 
+<script>
+window.addEventListener('scroll', () => document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20));
+ 
+const AIRPORTS = [
+  {id:'BTS',name:'Letisko M. R. Štefánika',city:'Bratislava',sectors:['A','B','C'],sps:16,ppd:8},
+  {id:'KSC',name:'Letisko Košice',city:'Košice',sectors:['A','B'],sps:12,ppd:6},
+  {id:'POP',name:'Letisko Poprad-Tatry',city:'Poprad',sectors:['A','B'],sps:10,ppd:5},
+  {id:'TAT',name:'Letisko Tatry',city:'Tatry',sectors:['A'],sps:8,ppd:4},
+  {id:'ILZ',name:'Letisko Žilina',city:'Žilina',sectors:['A','B'],sps:10,ppd:5},
+  {id:'KTW',name:'Letisko Katowice-Pyrzowice',city:'Katowice, PL',sectors:['A','B'],sps:14,ppd:7},
+  {id:'KRK',name:'Letisko Kraków-Balice',city:'Kraków, PL',sectors:['A','B','C'],sps:18,ppd:7},
+];
+const spots={};
+AIRPORTS.forEach(a=>a.sectors.forEach(s=>{
+  for(let i=1;i<=a.sps;i++){
+    const id=`${a.id}-${s}${String(i).padStart(2,'0')}`;
+    const r=Math.random();
+    spots[id]=r<0.38?'occupied':r<0.48?'reserved':'free';
+  }
+}));
+ 
+function getStats(a){
+  let free=0,occ=0,res=0,tot=0;
+  a.sectors.forEach(s=>{for(let i=1;i<=a.sps;i++){const id=`${a.id}-${s}${String(i).padStart(2,'0')}`;tot++;if(spots[id]==='free')free++;else if(spots[id]==='occupied')occ++;else res++;}});
+  return{free,occ,res,tot};
+}
+ 
+function renderAirports(filter='') {
+  const list = filter ? AIRPORTS.filter(a=>a.id===filter) : AIRPORTS;
+  document.getElementById('count-label').textContent = `${list.length} letísk · live dáta`;
+  document.getElementById('airports-grid').innerHTML = list.map((a,i) => {
+    const s=getStats(a);
+    const pct=Math.round((s.occ+s.res)/s.tot*100);
+    const bar=pct>=90?'var(--red)':pct>=65?'var(--orange)':'var(--green)';
+    return `<div class="airport-card fade-up" style="transition-delay:${i*0.07}s" onclick="goReserve('${a.id}')">
+      <div class="ac-head">
+        <div class="ac-iata">${a.id}</div>
+        <span class="badge ${s.free===0?'badge-full':'badge-open'}">${s.free===0?'PLNÉ':'OPEN'}</span>
+      </div>
+      <div class="ac-body">
+        <div class="ac-name">${a.name}</div>
+        <div class="ac-city">${a.city} · ${a.ppd} €/deň</div>
+        <div class="ac-nums">
+          <div class="ac-num"><div class="ac-num-val nv-green">${s.free}</div><div class="ac-num-label">Voľné</div></div>
+          <div class="ac-num"><div class="ac-num-val nv-red">${s.occ}</div><div class="ac-num-label">Obsadené</div></div>
+          <div class="ac-num"><div class="ac-num-val nv-white">${s.tot}</div><div class="ac-num-label">Celkom</div></div>
+        </div>
+        <div class="progress" style="margin-bottom:14px"><div class="progress-fill" style="width:${pct}%;background:${bar}"></div></div>
+        <button class="ac-btn">Rezervovať miesto →</button>
+      </div>
+    </div>`;
+  }).join('');
+ 
+  const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), {threshold:0.1});
+  document.querySelectorAll('.airport-card.fade-up').forEach(el => obs.observe(el));
+}
+ 
+function goReserve(id) {
+  const f=document.getElementById('f-from').value, t=document.getElementById('f-to').value;
+  window.location.href=`rezervacia.html?airport=${id}&from=${f}&to=${t}`;
+}
+function applyFilter() { renderAirports(document.getElementById('f-airport').value); }
+function resetFilter() { document.getElementById('f-airport').value=''; renderAirports(); }
+ 
+const td=new Date(),tm=new Date(td);tm.setDate(tm.getDate()+1);
+document.getElementById('f-from').value=td.toISOString().split('T')[0];
+document.getElementById('f-to').value=tm.toISOString().split('T')[0];
+ 
+const params=new URLSearchParams(window.location.search);
+if(params.get('airport')) document.getElementById('f-airport').value=params.get('airport');
+if(params.get('from')) document.getElementById('f-from').value=params.get('from');
+if(params.get('to')) document.getElementById('f-to').value=params.get('to');
+renderAirports(document.getElementById('f-airport').value);
+</script>
+</body>
+</html>

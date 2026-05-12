@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Park & Fly — Rezervácia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0E0E20;
+      --bg2: #171738;
+      --bg3: #1E1E45;
+      --gold: #F9CB40;
+      --gold-dim: rgba(249,203,64,0.15);
+      --gold-border: rgba(249,203,64,0.3);
+      --gold-glow: 0 0 18px rgba(249,203,64,0.4);
+      --white: #FFFFFF;
+      --text: #E8E8F0;
+      --text-2: #9898B8;
+      --text-3: #5C5C7A;
+      --line: rgba(255,255,255,0.07);
+      --line2: rgba(255,255,255,0.12);
+      --green: #2ECC71;
+      --red: #E74C3C;
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+ 
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 60px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem; background: rgba(14,14,32,0.92);
+      backdrop-filter: blur(20px); border-bottom: 1px solid var(--line); transition: background 0.3s;
+    }
+    .nav-logo { font-family: 'Syne',sans-serif; font-size: 19px; font-weight: 800; color: var(--white); text-decoration: none; letter-spacing: -0.5px; }
+    .nav-logo .amp { color: var(--gold); }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: var(--text-2); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-btn { background: var(--gold); color: var(--bg2) !important; padding: 7px 16px; border-radius: 20px; font-weight: 700 !important; }
+ 
+    .page-wrap { padding-top: 60px; }
+ 
+    .page-hero {
+      background: var(--bg2); border-bottom: 1px solid var(--line);
+      padding: 28px 2.5rem 20px; position: relative;
+    }
+    .page-hero::after { content:''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-border), transparent); }
+    .page-hero-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .page-hero-label { font-family: 'JetBrains Mono',monospace; font-size: 10px; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+    .page-hero h1 { font-family: 'Syne',sans-serif; font-size: clamp(20px,2.2vw,28px); font-weight: 800; color: var(--white); letter-spacing: -0.8px; }
+    .page-hero p { font-size: 12px; color: var(--text-3); margin-top: 3px; }
+    .back-link { font-size: 12px; color: var(--text-3); text-decoration: none; transition: color 0.2s; }
+    .back-link:hover { color: var(--gold); }
+ 
+    /* MAIN */
+    .content {
+      max-width: 1200px; margin: 0 auto;
+      padding: 22px 2.5rem 50px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+ 
+    /* PARKING CARD */
+    .parking-card {
+      background: var(--bg2); border-radius: var(--radius);
+      border: 1px solid var(--line2); padding: 20px;
+      position: relative; overflow: hidden;
+    }
+    .parking-card::before { content:''; position: absolute; top: -1px; left: 32px; right: 32px; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+ 
+    .pcard-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; gap: 10px; flex-wrap: wrap; }
+    .pcard-title { font-family: 'Syne',sans-serif; font-size: 14px; font-weight: 800; color: var(--white); letter-spacing: -0.3px; }
+    .pcard-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+ 
+    .pcard-right { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
+    .legend { display: flex; gap: 10px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--text-3); }
+    .ld { width: 8px; height: 8px; border-radius: 2px; }
+    .ld.free  { background: rgba(46,204,113,0.55); border: 1px solid rgba(46,204,113,0.9); }
+    .ld.taken { background: rgba(231,76,60,0.45);  border: 1px solid rgba(231,76,60,0.7); }
+    .ld.sel   { background: var(--gold);            border: 1px solid var(--gold); }
+ 
+    .stats { display: flex; gap: 8px; }
+    .s-pill { display: flex; align-items: center; gap: 5px; background: var(--bg3); border-radius: 6px; padding: 4px 9px; font-size: 10px; }
+    .s-num { font-family: 'JetBrains Mono',monospace; font-size: 13px; font-weight: 600; }
+    .s-num.free { color: var(--green); }
+    .s-num.taken { color: var(--red); }
+    .s-lbl { color: var(--text-3); }
+ 
+    /* Map */
+    .map-box { background: var(--bg3); border-radius: 9px; border: 1px solid var(--line); padding: 12px 12px 12px 8px; overflow-x: auto; }
+    .map-entry { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .map-entry-line { flex: 1; height: 1px; background: repeating-linear-gradient(90deg, var(--gold) 0, var(--gold) 7px, transparent 7px, transparent 14px); opacity: 0.3; }
+    .map-entry-lbl { font-family: 'JetBrains Mono',monospace; font-size: 8px; color: var(--gold); letter-spacing: 0.07em; white-space: nowrap; }
+ 
+    .p-rows { display: flex; flex-direction: column; gap: 5px; min-width: 380px; }
+    .p-row { display: flex; align-items: center; gap: 5px; }
+    .r-lbl { font-family: 'JetBrains Mono',monospace; font-size: 8px; color: var(--text-3); width: 11px; text-align: center; flex-shrink: 0; }
+    .s-group { display: flex; gap: 3px; }
+    .lane-div { width: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .lane-ln { width: 1px; align-self: stretch; background: repeating-linear-gradient(180deg, var(--text-3) 0, var(--text-3) 3px, transparent 3px, transparent 6px); opacity: 0.2; }
+ 
+    /* SPOT — small, no emoji */
+    .spot {
+      width: 26px; height: 34px; border-radius: 3px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      cursor: pointer; transition: all 0.14s; position: relative;
+      border: 1px solid transparent; user-select: none; flex-shrink: 0;
+    }
+    .spot-n { font-family: 'JetBrains Mono',monospace; font-size: 7px; font-weight: 500; line-height: 1; }
+    .spot-b { width: 12px; height: 2px; border-radius: 2px; }
+ 
+    .spot.free  { background: rgba(46,204,113,0.09); border-color: rgba(46,204,113,0.28); }
+    .spot.free .spot-n { color: rgba(46,204,113,0.6); }
+    .spot.free .spot-b { background: rgba(46,204,113,0.5); }
+    .spot.free:hover  { background: rgba(46,204,113,0.2); border-color: rgba(46,204,113,0.7); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(46,204,113,0.18); }
+ 
+    .spot.taken { background: rgba(231,76,60,0.07); border-color: rgba(231,76,60,0.22); cursor: not-allowed; }
+    .spot.taken .spot-n { color: rgba(231,76,60,0.4); }
+    .spot.taken .spot-b { background: rgba(231,76,60,0.35); }
+ 
+    .spot.selected { background: var(--gold-dim); border-color: var(--gold); box-shadow: var(--gold-glow); transform: translateY(-2px); }
+    .spot.selected .spot-n { color: var(--gold); }
+    .spot.selected .spot-b { background: var(--gold); }
+    .spot.selected::after { content:''; position: absolute; inset: -3px; border-radius: 5px; border: 1px solid var(--gold); opacity: 0; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:0;transform:scale(1)} 50%{opacity:0.3;transform:scale(1.08)} }
+ 
+    .sel-banner {
+      margin-top: 10px; padding: 9px 12px; border-radius: 7px;
+      background: var(--gold-dim); border: 1px solid var(--gold-border);
+      display: flex; align-items: center; gap: 7px;
+      font-size: 12px; color: var(--text);
+      opacity: 0; transform: translateY(4px); transition: all 0.25s; pointer-events: none;
+    }
+    .sel-banner.visible { opacity: 1; transform: translateY(0); }
+    .sel-banner strong { color: var(--gold); font-weight: 700; }
+ 
+    /* FORM CARD */
+    .form-card {
+      background: var(--bg2); border-radius: var(--radius);
+      border: 1px solid var(--line2); padding: 26px 28px;
+      position: relative; overflow: hidden;
+    }
+    .form-card::before { content:''; position: absolute; top: -1px; left: 28px; right: 28px; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+    .fc-title { font-family: 'Syne',sans-serif; font-size: 16px; font-weight: 800; color: var(--white); margin-bottom: 3px; letter-spacing: -0.3px; }
+    .fc-sub { font-size: 12px; color: var(--text-3); margin-bottom: 16px; }
+ 
+    .spot-badge {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--gold-dim); border: 1px solid var(--gold-border);
+      border-radius: 6px; padding: 7px 11px;
+      transition: all 0.25s; max-height: 0; overflow: hidden; opacity: 0; margin-bottom: 0;
+    }
+    .spot-badge.visible { max-height: 60px; opacity: 1; margin-bottom: 12px; }
+    .sb-label { color: var(--text-3); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .sb-val { color: var(--gold); font-family: 'JetBrains Mono',monospace; font-weight: 600; font-size: 13px; }
+ 
+    .fg { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .ff { grid-column: 1/-1; }
+    .f-g { display: flex; flex-direction: column; gap: 4px; }
+    .f-g label { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; }
+    .f-g input {
+      background: var(--bg3); border: 1.5px solid var(--line);
+      border-radius: var(--radius-sm); color: var(--text);
+      padding: 8px 12px; font-size: 13px; font-family: 'Inter',sans-serif;
+      outline: none; transition: border-color 0.2s; height: 40px;
+    }
+    .f-g input::placeholder { color: var(--text-3); }
+    .f-g input:focus { border-color: var(--gold); }
+ 
+    .divider { height: 1px; background: var(--line); margin: 11px 0; }
+ 
+    .submit-btn {
+      width: 100%; height: 46px; background: var(--gold); color: var(--bg2);
+      border: none; border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 700; font-family: 'Inter',sans-serif;
+      cursor: pointer; transition: box-shadow 0.2s, transform 0.15s;
+      letter-spacing: 0.02em; margin-top: 8px;
+    }
+    .submit-btn:hover { box-shadow: var(--gold-glow); transform: translateY(-1px); }
+    .submit-btn:active { transform: scale(0.99); }
+    .submit-btn:disabled { opacity: 0.38; cursor: not-allowed; transform: none; box-shadow: none; }
+ 
+    #status { margin-top: 9px; text-align: center; font-size: 12px; font-weight: 500; border-radius: var(--radius-sm); transition: all 0.3s; }
+    #status.v { padding: 8px; }
+    #status.success { background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3); color: var(--green); }
+    #status.error   { background: rgba(231,76,60,0.1);  border: 1px solid rgba(231,76,60,0.3);  color: var(--red); }
+ 
+    .spot-tooltip {
+      position: fixed; z-index: 200;
+      background: var(--bg2); border: 1px solid var(--gold-border);
+      border-radius: 6px; padding: 6px 10px;
+      font-size: 10px; color: var(--text); pointer-events: none;
+      opacity: 0; transition: opacity 0.12s; white-space: nowrap;
+      box-shadow: 0 5px 18px rgba(0,0,0,0.4);
+    }
+    .spot-tooltip.show { opacity: 1; }
+    .spot-tooltip strong { color: var(--gold); display: block; margin-bottom: 1px; font-size: 11px; }
+ 
+    @media (max-width: 980px) { .content { grid-template-columns: 1fr; } .form-card { position: static; } }
+    @media (max-width: 600px) { nav { padding: 0 1.2rem; } .nav-links { display: none; } .page-hero, .content { padding-left: 1.2rem; padding-right: 1.2rem; } }
+  </style>
+</head>
+<body>
+ 
+<nav>
+  <a class="nav-logo" href="index.html">Park<span class="amp">&</span>Fly</a>
+  <div class="nav-links">
+    <a href="index.html">Domov</a>
+    <a href="letiska.html">Letiská</a>
+    <a href="kontakt.html">Kontakt</a>
+    <a href="Bookflight.html">Rezervovať let</a>
+    <a href="rezervacia.html" class="nav-btn">Rezervovať →</a>
+  </div>
+</nav>
+ 
+<div class="page-wrap">
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <div>
+        <div class="page-hero-label">— Rezervácia parkovania</div>
+        <h1>Zarezervujte si miesto</h1>
+        <p>Vyberte voľné miesto na mape a vyplňte kontaktné údaje.</p>
+      </div>
+      <a class="back-link" href="letisky.html">← Späť na letiská</a>
+    </div>
+  </div>
+ 
+  <div class="content">
+ 
+    <!-- MAP -->
+    <div class="parking-card">
+      <div class="pcard-top">
+        <div>
+          <div class="pcard-title">Mapa parkoviska</div>
+          <div class="pcard-sub">Kliknite na zelené miesto pre výber</div>
+        </div>
+        <div class="pcard-right">
+          <div class="legend">
+            <div class="legend-item"><div class="ld free"></div> Voľné</div>
+            <div class="legend-item"><div class="ld taken"></div> Obsadené</div>
+            <div class="legend-item"><div class="ld sel"></div> Vybrané</div>
+          </div>
+          <div class="stats">
+            <div class="s-pill"><span class="s-num free" id="freeCount">—</span><span class="s-lbl">voľných</span></div>
+            <div class="s-pill"><span class="s-num taken" id="takenCount">—</span><span class="s-lbl">obsadených</span></div>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="map-box">
+        <div class="map-entry">
+          <div class="map-entry-lbl">⬇ VJAZD</div>
+          <div class="map-entry-line"></div>
+          <div class="map-entry-lbl">VÝJAZD ⬆</div>
+        </div>
+        <div class="p-rows" id="parkingRows"></div>
+      </div>
+ 
+      <div class="sel-banner" id="selBanner">
+        <span>🅿</span>
+        <span>Vybrané: <strong id="selText">—</strong> — vyplňte formulár vpravo.</span>
+      </div>
+    </div>
+ 
+    <!-- FORM -->
+    <div class="form-card">
+      <div class="fc-title">Detaily rezervácie</div>
+      <p class="fc-sub">Všetky polia sú povinné</p>
+ 
+      <div class="spot-badge" id="spotBadge">
+        <span style="font-size:15px;">🅿</span>
+        <div>
+          <div class="sb-label">Vybrané miesto</div>
+          <div class="sb-val" id="sbVal">—</div>
+        </div>
+      </div>
+ 
+      <form id="reservationForm">
+        <input type="hidden" id="selectedSpot"/>
+        <div class="fg">
+          <div class="f-g"><label>Meno</label><input type="text" id="firstName" placeholder="Ján" required/></div>
+          <div class="f-g"><label>Priezvisko</label><input type="text" id="lastName" placeholder="Novák" required/></div>
+          <div class="f-g"><label>E-mail</label><input type="email" id="email" placeholder="jan@email.sk" required/></div>
+          <div class="f-g"><label>Telefón</label><input type="text" id="phone" placeholder="+421 900 000 000" required/></div>
+          <div class="f-g ff"><label>ŠPZ vozidla</label><input type="text" id="licensePlate" placeholder="BB123AB" maxlength="8" required/></div>
+        </div>
+        <div class="divider"></div>
+        <div class="fg">
+          <div class="f-g"><label>Príjazd</label><input type="datetime-local" id="startTime" required/></div>
+          <div class="f-g"><label>Odchod</label><input type="datetime-local" id="endTime" required/></div>
+        </div>
+        <button type="submit" class="submit-btn" id="submitBtn" disabled>Vyberte parkovacie miesto →</button>
+      </form>
+      <div id="status"></div>
+    </div>
+ 
+  </div>
+ 
+  <footer style="background:var(--bg2);border-top:1px solid var(--line);padding:18px 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--white);">Park<span style="color:var(--gold)">&</span>Fly</div>
+    <p style="font-size:11px;color:var(--text-3);">© 2025 Park & Fly Slovakia</p>
+  </footer>
+</div>
+ 
+<div class="spot-tooltip" id="tip"></div>
+ 
+<script>
+  const ROWS = ['A','B','C','D','E'];
+  const takenSpots = new Set(['A2','A5','A9','A11','B1','B7','B8','B13','C3','C4','C6','C10','C12','D2','D5','D9','E1','E3','E7','E11','E14']);
+  let selected = null;
+ 
+  function buildMap() {
+    const c = document.getElementById('parkingRows');
+    let free = 0, taken = 0;
+    ROWS.forEach(row => {
+      const r = document.createElement('div'); r.className = 'p-row';
+      const lbl = document.createElement('div'); lbl.className = 'r-lbl'; lbl.textContent = row; r.appendChild(lbl);
+      const g1 = document.createElement('div'); g1.className = 's-group';
+      const ld = document.createElement('div'); ld.className = 'lane-div'; ld.innerHTML = '<div class="lane-ln"></div>';
+      const g2 = document.createElement('div'); g2.className = 's-group';
+      for (let n = 1; n <= 14; n++) {
+        const id = `${row}${n}`;
+        const t = takenSpots.has(id);
+        t ? taken++ : free++;
+        const s = document.createElement('div');
+        s.className = `spot ${t ? 'taken' : 'free'}`; s.dataset.id = id;
+        s.innerHTML = `<span class="spot-n">${id}</span><div class="spot-b"></div>`;
+        if (!t) s.addEventListener('click', () => pick(id));
+        s.addEventListener('mouseenter', e => showTip(e, id, t));
+        s.addEventListener('mouseleave', hideTip);
+        (n <= 7 ? g1 : g2).appendChild(s);
+      }
+      r.appendChild(g1); r.appendChild(ld); r.appendChild(g2); c.appendChild(r);
+    });
+    document.getElementById('freeCount').textContent = free;
+    document.getElementById('takenCount').textContent = taken;
+  }
+ 
+  function pick(id) {
+    if (selected) {
+      const p = document.querySelector(`.spot[data-id="${selected}"]`);
+      if (p) { p.classList.remove('selected'); p.classList.add('free'); }
+    }
+    selected = id;
+    const el = document.querySelector(`.spot[data-id="${id}"]`);
+    if (el) { el.classList.remove('free'); el.classList.add('selected'); }
+    document.getElementById('selectedSpot').value = id;
+    document.getElementById('spotBadge').classList.add('visible');
+    document.getElementById('sbVal').textContent = `Miesto ${id}`;
+    document.getElementById('selBanner').classList.add('visible');
+    document.getElementById('selText').textContent = `Miesto ${id}`;
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = false; btn.textContent = `Potvrdiť miesto ${id} →`;
+  }
+ 
+  const tip = document.getElementById('tip');
+  function showTip(e, id, t) { tip.innerHTML = `<strong>Miesto ${id}</strong>${t ? 'Obsadené' : '✓ Voľné — kliknite'}`; tip.classList.add('show'); mt(e); }
+  function hideTip() { tip.classList.remove('show'); }
+  document.addEventListener('mousemove', e => { if (tip.classList.contains('show')) mt(e); });
+  function mt(e) { tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY-42)+'px'; }
+ 
+  async function submit(e) {
+    e.preventDefault();
+    if (!selected) { st('error','❌ Najprv vyberte miesto.'); return; }
+    const s = new Date(document.getElementById('startTime').value);
+    const en = new Date(document.getElementById('endTime').value);
+    if (en <= s) { st('error','❌ Koniec musí byť po začiatku.'); return; }
+    st('','Vytváram rezerváciu...');
+    try {
+      const r = await fetch('/api/reserve', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ firstName: document.getElementById('firstName').value, lastName: document.getElementById('lastName').value, email: document.getElementById('email').value, phone: document.getElementById('phone').value, plate: document.getElementById('licensePlate').value, spot: selected, startTime: s.toISOString(), endTime: en.toISOString() }) });
+      const d = await r.json();
+      if (r.ok) {
+        st('success', `✅ Rezervácia miesta ${selected} bola úspešná!`);
+        document.getElementById('reservationForm').reset();
+        const el = document.querySelector(`.spot[data-id="${selected}"]`);
+        if (el) { el.classList.remove('selected','free'); el.classList.add('taken'); el.style.cursor='not-allowed'; }
+        takenSpots.add(selected);
+        document.getElementById('freeCount').textContent  = +document.getElementById('freeCount').textContent - 1;
+        document.getElementById('takenCount').textContent = +document.getElementById('takenCount').textContent + 1;
+        selected = null;
+        document.getElementById('spotBadge').classList.remove('visible');
+        document.getElementById('selBanner').classList.remove('visible');
+        const btn = document.getElementById('submitBtn'); btn.disabled=true; btn.textContent='Vyberte parkovacie miesto →';
+      } else { st('error','❌ '+(d.message||'Chyba')); }
+    } catch { st('error','❌ Chyba servera'); }
+  }
+ 
+  function st(type, msg) {
+    const el = document.getElementById('status');
+    el.className = type ? `v ${type}` : 'v'; el.innerHTML = msg;
+  }
+ 
+  document.getElementById('reservationForm').addEventListener('submit', submit);
+  window.addEventListener('scroll', () => { document.querySelector('nav').style.background = window.scrollY > 10 ? 'rgba(14,14,32,0.97)' : 'rgba(14,14,32,0.92)'; });
+  buildMap();
+</script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Park & Fly — Rezervácia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0E0E20;
+      --bg2: #171738;
+      --bg3: #1E1E45;
+      --gold: #F9CB40;
+      --gold-dim: rgba(249,203,64,0.15);
+      --gold-border: rgba(249,203,64,0.3);
+      --gold-glow: 0 0 20px rgba(249,203,64,0.4);
+      --white: #FFFFFF;
+      --text: #E8E8F0;
+      --text-2: #9898B8;
+      --text-3: #5C5C7A;
+      --line: rgba(255,255,255,0.07);
+      --line2: rgba(255,255,255,0.12);
+      --green: #2ECC71;
+      --red: #E74C3C;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+ 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+ 
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+ 
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 68px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 3rem;
+      background: rgba(14,14,32,0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-logo {
+      font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800;
+      color: var(--white); text-decoration: none; letter-spacing: -0.5px;
+    }
+    .nav-logo .amp { color: var(--gold); }
+    .nav-links { display: flex; gap: 2.5rem; align-items: center; }
+    .nav-links a {
+      font-size: 13px; font-weight: 500; color: var(--text-2);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--white); }
+    .nav-btn {
+      background: var(--gold); color: var(--bg2) !important;
+      padding: 8px 18px; border-radius: 20px; font-weight: 700 !important;
+    }
+ 
+    /* ── PAGE ── */
+    .page-wrap { padding-top: 68px; }
+ 
+    .page-hero {
+      background: var(--bg2); border-bottom: 1px solid var(--line);
+      padding: 48px 3rem 36px; position: relative;
+    }
+    .page-hero::after {
+      content:''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 1px; background: linear-gradient(90deg, transparent, var(--gold-border), transparent);
+    }
+    .page-hero-inner {
+      max-width: 900px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    }
+    .page-hero-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px;
+    }
+    .page-hero h1 {
+      font-family: 'Syne', sans-serif; font-size: clamp(26px, 3vw, 36px);
+      font-weight: 800; color: var(--white); letter-spacing: -1px;
+    }
+    .page-hero p { font-size: 13px; color: var(--text-3); margin-top: 6px; }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--text-3); text-decoration: none; transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--gold); }
+ 
+    /* ── FORM CARD ── */
+    .content {
+      max-width: 900px; margin: 0 auto; padding: 48px 3rem 80px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start;
+    }
+ 
+    .form-card {
+      background: var(--bg2); border-radius: var(--radius);
+      border: 1px solid var(--line2); padding: 32px;
+      position: relative; overflow: hidden;
+      grid-column: 1 / -1;
+    }
+    .form-card::before {
+      content:''; position: absolute; top: -1px; left: 40px; right: 40px;
+      height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .form-card-title {
+      font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800;
+      color: var(--white); margin-bottom: 6px; letter-spacing: -0.4px;
+    }
+    .form-card-sub { font-size: 13px; color: var(--text-3); margin-bottom: 28px; }
+ 
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .form-full { grid-column: 1 / -1; }
+ 
+    .f-group { display: flex; flex-direction: column; gap: 6px; }
+    .f-group label {
+      font-size: 11px; font-weight: 600; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .f-group input {
+      background: var(--bg3); border: 1.5px solid var(--line);
+      border-radius: var(--radius-sm); color: var(--text);
+      padding: 11px 14px; font-size: 14px; font-family: 'Inter', sans-serif;
+      outline: none; transition: border-color 0.2s, background 0.2s; height: 46px;
+    }
+    .f-group input::placeholder { color: var(--text-3); }
+    .f-group input:focus { border-color: var(--gold); background: var(--bg3); }
+ 
+    .divider { height: 1px; background: var(--line); margin: 8px 0; }
+ 
+    .submit-btn {
+      width: 100%; height: 52px; background: var(--gold); color: var(--bg2);
+      border: none; border-radius: var(--radius-sm);
+      font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: box-shadow 0.2s, transform 0.15s;
+      letter-spacing: 0.02em; margin-top: 8px;
+    }
+    .submit-btn:hover { box-shadow: var(--gold-glow); transform: translateY(-1px); }
+    .submit-btn:active { transform: scale(0.99); }
+ 
+    #status {
+      margin-top: 16px; text-align: center;
+      font-size: 15px; font-weight: 500; min-height: 24px;
+      padding: 10px; border-radius: var(--radius-sm);
+      transition: all 0.3s;
+    }
+    #status.success {
+      background: rgba(46,204,113,0.1);
+      border: 1px solid rgba(46,204,113,0.3);
+      color: var(--green);
+    }
+    #status.error {
+      background: rgba(231,76,60,0.1);
+      border: 1px solid rgba(231,76,60,0.3);
+      color: var(--red);
+    }
+ 
+    /* ── INFO CARDS ── */
+    .info-cards {
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .info-card {
+      background: var(--bg2); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 20px 22px;
+      transition: border-color 0.2s;
+    }
+    .info-card:hover { border-color: var(--gold-border); }
+    .info-card-icon { font-size: 22px; margin-bottom: 10px; }
+    .info-card-title {
+      font-family: 'Syne', sans-serif; font-size: 14px;
+      font-weight: 700; color: var(--white); margin-bottom: 6px;
+    }
+    .info-card-desc { font-size: 13px; color: var(--text-3); line-height: 1.6; }
+ 
+    @media (max-width: 768px) {
+      nav { padding: 0 1.5rem; }
+      .nav-links { display: none; }
+      .page-hero, .content { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .content { grid-template-columns: 1fr; padding-top: 32px; }
+      .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
+      .form-card { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+ 
+<nav>
+  <a class="nav-logo" href="index.html">Park<span class="amp">&</span>Fly</a>
+  <div class="nav-links">
+    <a href="index.html" class="active">Domov</a>
+    <a href="letiska.html">Letiská</a>
+    <a href="kontakt.html">Kontakt</a>
+    <a href="Bookflight.html">Rezervovať let</a>
+    <a href="rezervacia.html" class="nav-btn">Rezervovať →</a>
+  </div>
+</nav>
+ 
+<div class="page-wrap">
+ 
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <div>
+        <div class="page-hero-label">— Rezervácia parkovania</div>
+        <h1>Zarezervujte si miesto</h1>
+        <p>Vyplňte údaje a potvrďte rezerváciu parkovacieho miesta.</p>
+      </div>
+      <a class="back-link" href="letiska.html">← Späť na letiská</a>
+    </div>
+  </div>
+ 
+  <div class="content">
+ 
+    <!-- FLIGHT SECTION -->
+    <div class="form-card" style="grid-column: 1 / -1;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+        <div class="form-card-title" style="margin:0;">Book let ✈</div>
+        <span style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border);font-family:'JetBrains Mono',monospace;letter-spacing:0.06em;">VOLITEĽNÉ</span>
+      </div>
+      <p class="form-card-sub">Vyberte let pred rezerváciou parkovania</p>
+ 
+      <div class="form-grid">
+        <div class="f-group">
+          <label>Letisko odletu</label>
+          <select style="background:var(--bg3);border:1.5px solid var(--line);border-radius:var(--radius-sm);color:var(--text);padding:11px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;height:46px;transition:border-color 0.2s;">
+            <option value="">Vyberte letisko</option>
+            <option>BTS — Bratislava</option>
+            <option>KSC — Košice</option>
+            <option>POP — Poprad</option>
+            <option>TAT — Tatry</option>
+            <option>ILZ — Žilina</option>
+            <option>KTW — Katowice</option>
+            <option>KRK — Kraków</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Letisko príletu</label>
+          <select style="background:var(--bg3);border:1.5px solid var(--line);border-radius:var(--radius-sm);color:var(--text);padding:11px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;height:46px;transition:border-color 0.2s;">
+            <option value="">Vyberte letisko</option>
+            <option>VIE — Viedeň</option>
+            <option>PRG — Praha</option>
+            <option>WAW — Varšava</option>
+            <option>BUD — Budapešť</option>
+            <option>LHR — Londýn</option>
+            <option>CDG — Paríž</option>
+            <option>AMS — Amsterdam</option>
+            <option>FRA — Frankfurt</option>
+            <option>BCN — Barcelona</option>
+            <option>FCO — Rím</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Dátum odletu</label>
+          <input type="date" style="background:var(--bg3);border:1.5px solid var(--line);border-radius:var(--radius-sm);color:var(--text);padding:11px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;height:46px;"/>
+        </div>
+        <div class="f-group">
+          <label>Počet cestujúcich</label>
+          <select style="background:var(--bg3);border:1.5px solid var(--line);border-radius:var(--radius-sm);color:var(--text);padding:11px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;height:46px;">
+            <option>1 cestujúci</option>
+            <option>2 cestujúci</option>
+            <option>3 cestujúci</option>
+            <option>4 cestujúci</option>
+            <option>5+ cestujúcich</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Príručná batožina</label>
+          <select style="background:var(--bg3);border:1.5px solid var(--line);border-radius:var(--radius-sm);color:var(--text);padding:11px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;height:46px;">
+            <option>Len príručná (do 10 kg)</option>
+            <option>Príručná + kabínová</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Odbavená batožina</label>
+          <select style="background:var(--bg3);border:1.5px solid var(--line);border-radius:var(--radius-sm);color:var(--text);padding:11px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;height:46px;">
+            <option>Bez odbavenej batožiny</option>
+            <option>1 kus (do 20 kg)</option>
+            <option>1 kus (do 32 kg)</option>
+            <option>2 kusy</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Dospelí (18+)</label>
+          <select style="background:var(--bg3);border:1.5px solid var(--line);border-radius:var(--radius-sm);color:var(--text);padding:11px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;height:46px;">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5+</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Deti (2 — 17 rokov)</label>
+          <select style="background:var(--bg3);border:1.5px solid var(--line);border-radius:var(--radius-sm);color:var(--text);padding:11px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;height:46px;">
+            <option>0</option>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4+</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Dojčatá (0 — 23 mesiacov)</label>
+          <select style="background:var(--bg3);border:1.5px solid var(--line);border-radius:var(--radius-sm);color:var(--text);padding:11px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;height:46px;">
+            <option>0</option>
+            <option>1</option>
+            <option>2</option>
+          </select>
+        </div>
+      </div>
+ 
+      
+ <button type="submit" class="submit-btn">Potvrdiť rezerváciu →</button>
+  </div>
+ 
+ 
+</div>
+ 
+<script>
+async function createBooking(event) {
+    event.preventDefault();
+ 
+    const statusEl = document.getElementById("status");
+    statusEl.className = '';
+    statusEl.innerHTML = "Vytváram rezerváciu...";
+ 
+    const firstName = document.getElementById("firstName").value;
+    const lastName  = document.getElementById("lastName").value;
+    const email     = document.getElementById("email").value;
+    const phone     = document.getElementById("phone").value;
+    const plate     = document.getElementById("licensePlate").value;
+    const startTime = document.getElementById("startTime").value;
+    const endTime   = document.getElementById("endTime").value;
+ 
+    const startDateTime = new Date(startTime);
+    const endDateTime   = new Date(endTime);
+ 
+    if (endDateTime <= startDateTime) {
+        statusEl.className = 'error';
+        statusEl.innerHTML = "❌ Koniec rezervácie musí byť po začiatku.";
+        return;
+    }
+ 
+    try {
+        const response = await fetch("/api/reserve", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                firstName, lastName, email, phone, plate,
+                startTime: startDateTime.toISOString(),
+                endTime:   endDateTime.toISOString(),
+            }),
+        });
+ 
+        const result = await response.json();
+ 
+        if (response.ok) {
+            statusEl.className = 'success';
+            statusEl.innerHTML = "✅ Rezervácia bola úspešná!";
+            document.getElementById("reservationForm").reset();
+        } else {
+            statusEl.className = 'error';
+            statusEl.innerHTML = "❌ " + (result.message || "Rezervácia zlyhala");
+            console.log("Error:", result);
+        }
+ 
+    } catch (error) {
+        console.error(error);
+        statusEl.className = 'error';
+        statusEl.innerHTML = "❌ Chyba servera";
+    }
+}
+ 
+document.getElementById("reservationForm").addEventListener("submit", createBooking);
+ 
+function selectFlight() {
+    const status = document.getElementById("flight-status");
+    status.style.color = 'var(--gold)';
+    status.innerHTML = "✈ Let vybraný — vyplňte detaily parkovania nižšie";
+    document.getElementById("firstName").scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+ 
+// Nav scroll effect
+window.addEventListener('scroll', () => {
+    document.querySelector('nav').style.background =
+        window.scrollY > 20 ? 'rgba(14,14,32,0.97)' : 'rgba(14,14,32,0.9)';
+});
+</script>
+</body>
+</html>
